@@ -1,0 +1,6 @@
+/target
+result*
+/.direnv
+config.toml
+log.*
+*/node_modules
