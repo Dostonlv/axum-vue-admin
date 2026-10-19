@@ -49,8 +49,8 @@
 import { useUserStore } from '@/stores'
 import { useI18n } from 'vue-i18n'
 
-const dummyText = '一个基于 Axum、SeaORM、Cedar Policy、Vue3.0、Naive UI 的轻量级后台管理模板'
 const { t } = useI18n({ useScope: 'global' })
+const dummyText = t('views.workbench.text_description')
 
 const statisticData = computed(() => [
   {

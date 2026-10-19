@@ -6,7 +6,7 @@ use crate::not_found;
 use crate::schemas::cedar_policy::TemplateLinkRecord;
 use crate::services::cedar_auth::CedarAuthService;
 use anyhow::Result;
-use cedar_policy::{EntityUid, PolicyId};
+use cedar_policy::PolicyId;
 use sea_orm::{ActiveModelTrait, ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use std::collections::HashSet;
 use std::sync::Arc;
@@ -47,7 +47,7 @@ impl PolicyLinkManager {
 
         let new_records_from_db = self.load_link_records_from_db(&ids_to_load).await?;
         if new_records_from_db.is_empty() {
-            return Err(not_found!("数据库中未找到一个或多个所需的策略链接。"));
+            return Err(not_found!("One or more required policy links were not found in the database."));
         }
 
         let all_records = [cached_records, new_records_from_db].concat();
@@ -91,7 +91,7 @@ impl PolicyLinkManager {
             .await?;
         if res.rows_affected == 0 {
             return Err(not_found!(format!(
-                "未找到可删除的 link_uuid 为“{}”的链接。",
+                "No link with link_uuid '{}' found to delete.",
                 link_uuid
             )));
         }

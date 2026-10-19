@@ -15,7 +15,7 @@ use cedar_policy::{
 use core::str::FromStr;
 use sea_orm::{
     ActiveModelTrait, ColumnTrait, EntityTrait, JoinType, PaginatorTrait, QueryFilter, QuerySelect,
-    RelationTrait, Select, Set,
+    RelationTrait, Set,
 };
 use serde_json::Value;
 use sha2::{Digest, Sha256};

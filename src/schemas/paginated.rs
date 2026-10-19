@@ -1,4 +1,4 @@
-//  分页响应的Response
+// Paginated response
 
 use axum::{http::StatusCode, response::IntoResponse, response::Response, Json};
 use serde::Serialize;
@@ -35,7 +35,7 @@ impl<T: Serialize> PaginatedApiResponse<T> {
     }
 }
 
-// 为 PaginatedApiResponse 实现 IntoResponse
+// IntoResponse for PaginatedApiResponse
 impl<T: Serialize> IntoResponse for PaginatedApiResponse<T> {
     fn into_response(self) -> Response {
         (StatusCode::from_u16(self.code).unwrap(), Json(self)).into_response()

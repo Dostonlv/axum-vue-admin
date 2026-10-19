@@ -3,14 +3,14 @@ import * as schemaApi from '@/api/modules/cedarSchemas';
 
 export const useSchemaStore = defineStore('schema', {
     state: () => ({
-        // Schema 列表
+        // Schema list
         schemas: [],
-        // 加载状态
+        // Loading state
         isLoading: false,
     }),
 
     actions: {
-        // 获取 Schema 列表
+        // Fetch the schema list
         async fetchSchemas() {
             this.isLoading = true;
             try {
@@ -21,7 +21,7 @@ export const useSchemaStore = defineStore('schema', {
             }
         },
 
-        // 更新 Schema
+        // Update a schema
         async updateSchema(id, data) {
             await schemaApi.updateSchema(id, data);
             await this.fetchSchemas();

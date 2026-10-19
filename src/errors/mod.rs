@@ -1,3 +1,3 @@
-// 错误模块入口
+// Error module entry
 
 pub mod app_error;

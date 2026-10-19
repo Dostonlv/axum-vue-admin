@@ -13,6 +13,9 @@
 <script setup>
 import { useTagsStore, useAppStore } from '@/stores'
 import { renderIcon } from '@/utils'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n({ useScope: 'global' })
 
 const props = defineProps({
   show: {
@@ -40,31 +43,31 @@ const appStore = useAppStore()
 
 const options = computed(() => [
   {
-    label: '重新加载',
+    label: t('common.buttons.reload'),
     key: 'reload',
     disabled: props.currentPath !== tagsStore.activeTag,
     icon: renderIcon('mdi:refresh', { size: '14px' }),
   },
   {
-    label: '关闭',
+    label: t('common.buttons.close'),
     key: 'close',
     disabled: tagsStore.tags.length <= 1,
     icon: renderIcon('mdi:close', { size: '14px' }),
   },
   {
-    label: '关闭其他',
+    label: t('common.buttons.close_others'),
     key: 'close-other',
     disabled: tagsStore.tags.length <= 1,
     icon: renderIcon('mdi:arrow-expand-horizontal', { size: '14px' }),
   },
   {
-    label: '关闭左侧',
+    label: t('common.buttons.close_left'),
     key: 'close-left',
     disabled: tagsStore.tags.length <= 1 || props.currentPath === tagsStore.tags[0].path,
     icon: renderIcon('mdi:arrow-expand-left', { size: '14px' }),
   },
   {
-    label: '关闭右侧',
+    label: t('common.buttons.close_right'),
     key: 'close-right',
     disabled:
       tagsStore.tags.length <= 1 ||
@@ -79,7 +82,7 @@ const actionMap = new Map([
     'reload',
     () => {
       if (route.meta?.keepAlive) {
-        // 重置keepAlive
+        // Reset keepAlive
         appStore.setAliveKeys(route.name, +new Date())
       }
       appStore.reloadPage()

@@ -13,8 +13,11 @@ import QueryBarItem from '@/components/query-bar/QueryBarItem.vue'
 import CrudModal from '@/components/table/CrudModal.vue'
 import CrudTable from '@/components/table/CrudTable.vue'
 import TheIcon from '@/components/icon/TheIcon.vue'
+import { useI18n } from 'vue-i18n'
 
-defineOptions({name: '用户管理'})
+const { t } = useI18n({ useScope: 'global' })
+
+defineOptions({name: 'UserManagement'})
 
 
 const store = useUserManagementStore()
@@ -33,7 +36,7 @@ const vPermission = resolveDirective('permission')
 
 const showCrudModal = ref(false)
 const modalType = ref('create')
-const modalTitle = computed(() => modalType.value === 'create' ? '新建用户' : '编辑用户')
+const modalTitle = computed(() => modalType.value === 'create' ? t('views.system.user.new') : t('views.system.user.edit'))
 const currentItem = ref({})
 const isSubmitting = ref(false)
 
@@ -51,7 +54,7 @@ onMounted(() => {
   handleSearch()
 })
 
-// --- 事件处理函数 ---
+// --- Event handlers ---
 const loadData = () => {
   console.log("queryParams", queryParams)
   store.fetchUsers({
@@ -59,17 +62,17 @@ const loadData = () => {
     page: pagination.value.page,
     pageSize: pagination.value.pageSize,
   }).catch(error => {
-    $message.error(`加载用户失败: ${error.message}`)
+    $message.error(`${t('views.system.user.load_failed')}: ${error.message}`)
   })
 }
 
-// 处理来自 CrudTable 的搜索事件
+// Search event from CrudTable
 const handleSearch = () => {
-  pagination.value.page = 1 // 搜索时重置到第一页
+  pagination.value.page = 1 // back to the first page on search
   loadData()
 }
 
-// 处理的重置事件
+// Reset event
 const handleResetSearch = () => {
   for (const key in queryParams) {
     delete queryParams[key]
@@ -77,13 +80,13 @@ const handleResetSearch = () => {
   handleSearch()
 }
 
-// 处理的页码变更事件
+// Page change event
 const handlePageChange = (page) => {
   pagination.value.page = page
   loadData()
 }
 
-// 处理页面大小变更事件
+// Page size change event
 const handlePageSizeChange = (pageSize) => {
   pagination.value.pageSize = pageSize
   pagination.value.page = 1
@@ -114,15 +117,15 @@ const handleSave = async () => {
   try {
     if (modalType.value === 'create') {
       await store.createUser(currentItem.value)
-      $message.success('创建成功')
+      $message.success(t('common.messages.create_success'))
     } else {
       await store.updateUser(currentItem.value.uuid, currentItem.value)
-      $message.success('更新成功')
+      $message.success(t('common.messages.update_success'))
     }
     loadData()
     showCrudModal.value = false
   } catch (error) {
-    $message.error(`操作失败: ${error.message}`)
+    $message.error(`${t('common.messages.operation_failed')}: ${error.message}`)
   } finally {
     isSubmitting.value = false
   }
@@ -131,9 +134,9 @@ const handleSave = async () => {
 const handleDelete = async (row) => {
   try {
     await store.deleteUser(row.uuid)
-    $message.success('删除成功')
+    $message.success(t('common.messages.delete_success'))
   } catch (error) {
-    $message.error(`删除失败: ${error.message}`)
+    $message.error(`${t('common.messages.delete_failed')}: ${error.message}`)
   }
 }
 
@@ -145,51 +148,51 @@ const handleViewRoles = async (row) => {
     await store.fetchUserRoles(row.uuid)
     showRoleModal.value = true
   } catch (error) {
-    $message.error(`获取角色失败: ${error.message}`)
+    $message.error(`${t('views.system.user.roles_load_failed')}: ${error.message}`)
   }
 }
 
 const handleAddRoles = async () => {
   if (!selectedRoleIds.value || selectedRoleIds.value.length === 0) {
-    $message.warning('请选择要添加的角色');
+    $message.warning(t('views.system.user.select_role'));
     return;
   }
   try {
     await store.addUserRoles(currentUserId.value, selectedRoleIds.value);
-    $message.success('角色添加成功');
+    $message.success(t('views.system.user.role_added'));
     selectedRoleIds.value = [];
   } catch (error) {
-    $message.error(`添加失败: ${error.message}`);
+    $message.error(`${t('views.system.user.add_failed')}: ${error.message}`);
   }
 }
 
 const handleRemoveRole = async (roleId) => {
   try {
     await store.removeUserRole(currentUserId.value, roleId);
-    $message.success('角色移除成功');
+    $message.success(t('views.system.user.role_removed'));
   } catch (error) {
-    $message.error(`移除失败: ${error.message}`);
+    $message.error(`${t('views.system.user.remove_failed')}: ${error.message}`);
   }
 }
 
 
 const columns = [
   {
-    title: '名称',
+    title: t('views.system.user.col_name'),
     key: 'username',
     width: 60,
     align: 'center',
     ellipsis: {tooltip: true},
   },
   {
-    title: '邮箱',
+    title: t('views.system.user.email'),
     key: 'email',
     width: 60,
     align: 'center',
     ellipsis: {tooltip: true},
   },
   {
-    title: '用户组',
+    title: t('views.system.user.group'),
     width: 100,
     align: 'center',
     render(row) {
@@ -233,14 +236,14 @@ const columns = [
     }
   },
   {
-    title: '部门',
+    title: t('common.fields.dept'),
     key: 'dept.name',
     align: 'center',
     width: 40,
     ellipsis: {tooltip: true},
   },
   {
-    title: '状态',
+    title: t('common.fields.status'),
     key: 'is_active',
     width: 80,
     align: 'center',
@@ -248,13 +251,13 @@ const columns = [
       return h(NSwitch,
           { defaultValue: row.is_active, disabled: true },
           {
-            checked: () => '启用',
-            unchecked: () => '禁用'
+            checked: () => t('common.status.enabled'),
+            unchecked: () => t('common.status.disabled')
           })
     },
   },
   {
-    title: '上次登录时间',
+    title: t('views.system.user.last_login'),
     key: 'last_login',
     align: 'center',
     width: 80,
@@ -271,7 +274,7 @@ const columns = [
     },
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     width: 280,
     align: 'center',
@@ -285,7 +288,7 @@ const columns = [
                   type: 'primary',
                   style: 'margin-right: 8px;',
                   onClick: () => handleEdit(row)},
-                {default: () => '编辑', icon: renderIcon('material-symbols:edit', {size: 16})}),
+                {default: () => t('common.buttons.edit'), icon: renderIcon('material-symbols:edit', {size: 16})}),
             [[vPermission, 'button:user_update']]
         ),
         withDirectives(
@@ -295,17 +298,17 @@ const columns = [
                   style: 'margin-right: 8px;',
                   onClick: () => handleViewRoles(row)
                 },
-                {default: () => '查看角色', icon: renderIcon('material-symbols:visibility-outline', {size: 16})}),
+                {default: () => t('views.system.user.view_roles'), icon: renderIcon('material-symbols:visibility-outline', {size: 16})}),
             [[vPermission, 'button:user_view']]
         ),
         h(NPopconfirm, {onPositiveClick: () => handleDelete(row)},
             {
               trigger: () => withDirectives(
                   h(NButton, {size: 'small', type: 'error'},
-                      {default: () => '删除', icon: renderIcon('material-symbols:delete-outline', {size: 16})}),
+                      {default: () => t('common.buttons.delete'), icon: renderIcon('material-symbols:delete-outline', {size: 16})}),
                   [[vPermission, 'button:user_delete']]
               ),
-              default: () => '确定删除该用户吗?'
+              default: () => t('views.system.user.confirm_delete')
             }
         ),
       ]
@@ -315,25 +318,25 @@ const columns = [
 
 const userRoleColumns = [
   {
-    title: '角色',
+    title: t('views.system.user.role'),
     key: 'role_name',
     align: 'center',
     width: 150,
   },
   {
-    title: '来源',
+    title: t('views.system.user.source'),
     key: 'source',
     align: 'center',
     width: 150,
   },
   {
-    title: '用户组',
+    title: t('views.system.user.group'),
     key: 'group_name',
     align: 'center',
     width: 150,
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     render(row) {
       if (row.source === 'direct') {
@@ -345,11 +348,11 @@ const userRoleColumns = [
                         size: 'small',
                         type: 'error'},
                       {
-                        default: () => '删除',
+                        default: () => t('common.buttons.delete'),
                         icon: renderIcon('material-symbols:delete-outline',{size: 16})}),
                   [[vPermission, 'button:user_delete']]
               ),
-              default: () => '确定删除该用户的直接角色吗?',
+              default: () => t('views.system.user.confirm_remove_role'),
             }
         )
       }
@@ -361,14 +364,14 @@ const validateAddUser = {
   username: [
     {
       required: true,
-      message: '请输入名称',
+      message: t('views.system.user.enter_name'),
       trigger: ['input', 'blur'],
     },
   ],
   email: [
     {
       required: true,
-      message: '请输入邮箱地址',
+      message: t('views.system.user.enter_email_address'),
       trigger: ['input', 'change'],
     },
     {
@@ -376,7 +379,7 @@ const validateAddUser = {
       validator: (rule, value, callback) => {
         const re = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
         if (!re.test(value)) {
-          callback('邮箱格式错误')
+          callback(t('views.system.user.invalid_email'))
           return
         }
         callback()
@@ -386,7 +389,7 @@ const validateAddUser = {
   password: [
     {
       required: true,
-      message: '请输入密码',
+      message: t('views.system.user.enter_password'),
       trigger: ['input', 'blur', 'change'],
     },
   ],
@@ -394,21 +397,21 @@ const validateAddUser = {
     {
       type: 'array',
       required: true,
-      message: '请选择一个部门',
+      message: t('views.system.user.select_dept_required'),
       trigger: ['blur', 'change'],
     },
   ],
   confirmPassword: [
     {
       required: true,
-      message: '请再次输入密码',
+      message: t('views.system.user.enter_password_again'),
       trigger: ['input'],
     },
     {
       trigger: ['blur'],
       validator: (rule, value) => {
         if (value !== currentItem.value.password) {
-          return new Error('两次密码输入不一致');
+          return new Error(t('views.profile.message_password_confirmation_diff'));
         }
         return true;
       },
@@ -416,7 +419,7 @@ const validateAddUser = {
   ],
 }
 
-// 左侧的部门选择
+// Department picker on the left
 const nodeProps = ({option}) => {
   return {
     onClick() {
@@ -435,7 +438,7 @@ const nodeProps = ({option}) => {
 <template>
   <NLayout has-sider wh-full>
     <NLayoutSider bordered content-style="padding: 24px;" :width="240" show-trigger="arrow-circle">
-      <h1>部门列表</h1>
+      <h1>{{ t('views.system.dept.list') }}</h1>
       <br/>
       <NTree
           block-line
@@ -447,11 +450,11 @@ const nodeProps = ({option}) => {
       />
     </NLayoutSider>
     <NLayoutContent>
-      <CommonPage show-footer title="用户列表">
+      <CommonPage show-footer :title="t('views.system.user.list')">
         <template #action>
           <NButton v-permission="'button:user_create'" type="primary" @click="handleAdd">
             <TheIcon icon="material-symbols:add" :size="18" class="mr-5"/>
-            新建用户
+            {{ t('views.system.user.new') }}
           </NButton>
         </template>
 
@@ -466,21 +469,21 @@ const nodeProps = ({option}) => {
             @reset="handleResetSearch"
         >
           <template #queryBar>
-            <QueryBarItem label="名称" :label-width="40">
+            <QueryBarItem :label="t('views.system.user.col_name')" :label-width="40">
               <NInput
                   v-model:value="queryParams.username"
                   clearable
                   type="text"
-                  placeholder="请输入用户名称"
+                  :placeholder="t('views.system.user.enter_username')"
                   @keypress.enter="handleSearch()"
               />
             </QueryBarItem>
-            <QueryBarItem label="邮箱" :label-width="40">
+            <QueryBarItem :label="t('views.system.user.email')" :label-width="40">
               <NInput
                   v-model:value="queryParams.email"
                   clearable
                   type="text"
-                  placeholder="请输入邮箱"
+                  :placeholder="t('views.system.user.enter_email')"
                   @keypress.enter="handleSearch()"
               />
             </QueryBarItem>
@@ -495,22 +498,22 @@ const nodeProps = ({option}) => {
             @save="handleSave"
         >
           <NForm :model="currentItem" :rules="validateAddUser" label-placement="left" label-width="auto">
-            <NFormItem label="用户名称" path="username">
+            <NFormItem :label="t('views.system.user.username')" path="username">
               <NInput v-model:value="currentItem.username"/>
             </NFormItem>
-            <NFormItem label="邮箱" path="email">
+            <NFormItem :label="t('views.system.user.email')" path="email">
               <NInput v-model:value="currentItem.email" clearable/>
             </NFormItem>
-            <NFormItem v-if="modalType === 'create'" label="密码" path="password">
+            <NFormItem v-if="modalType === 'create'" :label="t('common.fields.password')" path="password">
               <NInput
                   v-model:value="currentItem.password"
                   show-password-on="mousedown"
                   type="password"
                   clearable
-                  placeholder="请输入密码"
+                  :placeholder="t('views.system.user.enter_password')"
               />
             </NFormItem>
-            <NFormItem v-if="modalType === 'create'" label="确认密码" path="confirmPassword">
+            <NFormItem v-if="modalType === 'create'" :label="t('views.profile.label_confirm_password')" path="confirmPassword">
               <NInput
                   v-model:value="currentItem.confirmPassword"
                   show-password-on="mousedown"
@@ -518,25 +521,25 @@ const nodeProps = ({option}) => {
                   clearable
               />
             </NFormItem>
-            <NFormItem label="用户组" path="group">
+            <NFormItem :label="t('views.system.user.group')" path="group">
               <NSelect
                   :options="userGroupOptions"
                   v-model:value="currentItem.groups"
                   multiple
                   clearable/>
             </NFormItem>
-            <NFormItem label="部门" path="dept">
+            <NFormItem :label="t('common.fields.dept')" path="dept">
               <NTreeSelect
                   v-model:value="currentItem.dept"
                   :options="departmentOptions"
                   key-field="uuid"
                   label-field="name"
-                  placeholder="请选择部门"
+                  :placeholder="t('views.system.user.select_dept')"
                   clearable
                   default-expand-all
               ></NTreeSelect>
             </NFormItem>
-            <NFormItem label="禁用" path="is_active">
+            <NFormItem :label="t('common.status.disabled')" path="is_active">
               <NSwitch
                   v-model:value="currentItem.is_active"
                   :checked-value="false"
@@ -546,9 +549,9 @@ const nodeProps = ({option}) => {
             </NFormItem>
           </NForm>
         </CrudModal>
-        <!-- 角色 弹窗 -->
+        <!-- Roles dialog -->
         <NModal :show="showRoleModal"
-                title="角色"
+                :title="t('views.system.user.role')"
                 preset="card"
                 size="large"
                 style="width: 700px"
@@ -563,7 +566,7 @@ const nodeProps = ({option}) => {
                   filterable
                   clearable
                   multiple/>
-              <NButton @click="handleAddRoles">添加角色</NButton>
+              <NButton @click="handleAddRoles">{{ t('views.system.user.add_role') }}</NButton>
             </NSpace>
             <NDataTable :columns="userRoleColumns" :data="currentUserRoles"/>
           </NSpace>

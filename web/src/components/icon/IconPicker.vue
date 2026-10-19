@@ -2,16 +2,19 @@
 import { ref } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 import { NInput, NPopover } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 import TheIcon from './TheIcon.vue'
 import iconData from '@/assets/js/icons'
 
+const { t } = useI18n({ useScope: 'global' })
+
 const props = defineProps({ value: String })
 const emit = defineEmits(['update:value'])
 
-const choosed = ref(props.value) // 选中值
+const choosed = ref(props.value) // selected value
 const icons = ref(iconData)
-// const icons = ref(iconData.filter((icon) => icon.includes(choosed.value))) // 可选图标列表
+// const icons = ref(iconData.filter((icon) => icon.includes(choosed.value))) // selectable icons
 
 function filterIcons() {
   icons.value = iconData.filter((item) => item.includes(choosed.value))
@@ -36,7 +39,7 @@ watchDebounced(
   <div class="w-full">
     <NPopover trigger="click" placement="bottom-start">
       <template #trigger>
-        <NInput v-model:value="choosed" placeholder="请输入图标名称" @update:value="filterIcons">
+        <NInput v-model:value="choosed" :placeholder="t('components.icon_picker.placeholder')" @update:value="filterIcons">
           <template #prefix>
             <span class="i-mdi:magnify text-18" />
           </template>
@@ -46,11 +49,13 @@ watchDebounced(
         </NInput>
       </template>
       <template #footer>
-        更多图标去
-        <a class="text-blue" target="_blank" href="https://icones.js.org/collection/all">
-          Icones
-        </a>
-        查看
+        <i18n-t keypath="components.icon_picker.more" tag="span">
+          <template #link>
+            <a class="text-blue" target="_blank" href="https://icones.js.org/collection/all">
+              Icones
+            </a>
+          </template>
+        </i18n-t>
       </template>
       <ul v-if="icons.length" class="h-150 w-300 overflow-y-scroll">
         <li

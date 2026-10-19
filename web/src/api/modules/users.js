@@ -1,38 +1,38 @@
 import http from '../http';
 
-// 获取用户列表 (支持分页和搜索)
+// User list (paginated, searchable)
 export const getUsers = (params) => {
     return http.get('/users', { params });
 };
 
-// 获取单个用户详情
+// Get one user
 export const getUserById = (id) => {
     return http.get(`/users/${id}`);
 };
 
-// 创建新用户
+// Create a user
 export const createUser = (data) => {
     return http.post('/users', data);
 };
 
-// 更新用户
-// 注意：这里我们传递完整的更新数据，而不是在UI层计算差异。
-// 后端应该处理只更新接收到的字段。
+// Update a user
+// Note: we send the full payload instead of diffing in the UI.
+// The backend should only update the fields it receives.
 export const updateUser = (id, data) => {
     return http.put(`/users/${id}`, data);
 };
 
-// 删除用户
+// Delete a user
 export const deleteUser = (id) => {
     return http.delete(`/users/${id}`);
 };
 
-// 批量删除用户
+// Bulk delete users
 export const batchDeleteUsers = (ids) => {
     return http.delete('/users/batch', { data: { ids } });
 };
 
-// 关联操作
+// Relations
 export const getUserRoles = (userId, params) => {
     return http.get(`/users/${userId}/roles`, { params });
 }

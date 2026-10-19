@@ -18,7 +18,7 @@ use validator::Validate;
     path = "",
     request_body=ForgotPasswordDto,
     responses(
-    ( status=201, description = "重置邮件发送成功"),
+    ( status=201, description = "Reset email sent"),
     ),
     tag = PASSWORD_TAG
 )]
@@ -42,7 +42,7 @@ pub async fn forgot_password(
     path = "/{reset_token}",
     request_body=ResetPasswordDto,
     responses(
-    ( status=204, description = "密码重置成功"),
+    ( status=204, description = "Password reset"),
     ),
     tag = PASSWORD_TAG
 )]

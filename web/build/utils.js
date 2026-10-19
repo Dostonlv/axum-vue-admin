@@ -3,17 +3,17 @@ import path from 'path'
 import dotenv from 'dotenv'
 
 /**
- * * 项目根路径
- * @descrition 结尾不带/
+ * * Project root
+ * @descrition no trailing /
  */
 export function getRootPath() {
   return path.resolve(process.cwd())
 }
 
 /**
- * * 项目src路径
- * @param srcName src目录名称(默认: "src")
- * @descrition 结尾不带斜杠
+ * * Project src path
+ * @param srcName name of the src directory (default: "src")
+ * @descrition no trailing slash
  */
 export function getSrcPath(srcName = 'src') {
   return path.resolve(getRootPath(), srcName)
@@ -35,7 +35,7 @@ export function convertEnv(envOptions) {
 }
 
 /**
- * 获取当前环境下生效的配置文件名
+ * Name of the config file active in the current environment
  */
 function getConfFiles() {
   const script = process.env.npm_lifecycle_script

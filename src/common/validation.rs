@@ -1,1 +1,1 @@
-// 数据验证工具
+// Validation helpers

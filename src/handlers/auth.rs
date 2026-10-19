@@ -27,8 +27,8 @@ fn with_refresh_cookie(jar: CookieJar, pair: &TokenPair) -> CookieJar {
     post,
     path = "/login",
     request_body=Credentials,
-    responses(( status=200, body=AuthResponse, description = "登陆成功"),
-                (status=401, description = "认证失败"),),
+    responses(( status=200, body=AuthResponse, description = "Logged in"),
+                (status=401, description = "Authentication failed"),),
     tag = AUTH_TAG
 )]
 pub async fn login(
@@ -52,7 +52,7 @@ pub async fn login(
 #[utoipa::path(
     post,
     path = "/refresh_token",
-    responses(( status=200, body=AuthResponse, description = "刷新成功")),
+    responses(( status=200, body=AuthResponse, description = "Token refreshed")),
     tag = AUTH_TAG
 )]
 pub async fn refresh_token(
@@ -78,7 +78,7 @@ pub async fn refresh_token(
 #[utoipa::path(
     post,
     path = "/logout",
-    responses(( status=200, description = "退出成功")),
+    responses(( status=200, description = "Logged out")),
     tag = AUTH_TAG,
     security(
           ("bearerAuth" = [])

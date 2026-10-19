@@ -19,7 +19,7 @@ pub struct DeptTreeNode {
     pub order: i32,
     pub parent_uuid: String,
     #[schema(no_recursion)]
-    pub children: Vec<DeptTreeNode>, // 子部门
+    pub children: Vec<DeptTreeNode>, // child departments
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema)]

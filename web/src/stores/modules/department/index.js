@@ -5,7 +5,7 @@ export const useDepartmentStore = defineStore('department', {
     state: () => ({
         departments: [],
 
-        // 加载状态
+        // Loading state
         isLoading: false,
     }),
 
@@ -14,7 +14,7 @@ export const useDepartmentStore = defineStore('department', {
     },
 
     actions: {
-        // 获取完整的部门树
+        // Fetch the full department tree
         async fetchDepartments(params) {
             this.isLoading = true;
             try {
@@ -25,20 +25,20 @@ export const useDepartmentStore = defineStore('department', {
             }
         },
 
-        // 创建部门
+        // Create a department
         async createDepartment(data) {
             await deptApi.createDepartment(data);
-            // 成功后，必须重新获取整个树以保证结构正确
+            // Refetch the whole tree afterwards so the structure stays correct
             await this.fetchDepartments();
         },
 
-        // 更新部门
+        // Update a department
         async updateDepartment(id, data) {
             await deptApi.updateDepartment(id, data);
             await this.fetchDepartments();
         },
 
-        // 删除部门
+        // Delete a department
         async deleteDepartment(id) {
             await deptApi.deleteDepartment(id);
             await this.fetchDepartments();

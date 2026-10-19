@@ -2,10 +2,10 @@ use crate::schemas::user::{DeptResponse, GroupResponse};
 use chrono::NaiveDateTime;
 use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 use utoipa::ToSchema;
 
-// 定义UI策略的类型别名，便于理解
+// Type alias for UI policies
 pub type UiPolicies = HashSet<String>;
 
 #[derive(Default, Debug, Serialize, Deserialize, ToSchema, FromQueryResult)]

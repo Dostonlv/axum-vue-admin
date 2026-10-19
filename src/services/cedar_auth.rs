@@ -13,7 +13,7 @@ use std::collections::HashMap;
 use std::str::FromStr;
 use std::sync::Arc;
 use tokio::sync::RwLock;
-use tracing::{debug, error, info, instrument, warn};
+use tracing::{debug, error, info, warn};
 
 #[derive(Clone)]
 pub struct CedarAuthService {
@@ -55,7 +55,7 @@ impl CedarAuthService {
             .await
     }
 
-    /// 带资源实体的授权检查
+    /// Authorization check with resource entities
     pub async fn check_permission_with_entities(
         &self,
         user_id: &UserUUID,
@@ -80,7 +80,7 @@ impl CedarAuthService {
         request: &Request,
         resource_entities: Entities,
     ) -> Result<bool, AppError> {
-        // 从缓存获取用户实体
+        // Get the user entity from the cache
         let cache_key = format!("{}:{}", USER_ENTITIES_CACHE_PREFIX, user_id);
 
         let user_entities = self
@@ -110,18 +110,18 @@ impl CedarAuthService {
                     values,
                 ) {
                     warn!(
-                        "无法将模板“{}”链接到链接“{}”：{}。跳过。",
+                        "Cannot link template '{}' to link '{}': {}. Skipping.",
                         record.template_uuid, record.link_uuid, e
                     );
                 }
             }
         }
         // debug!("effective_policies: {}", effective_policies);
-        // 合并资源实体
+        // Merge the resource entities
         let schema = self.schema.read().await;
         let combined_entities = user_entities.add_entities(resource_entities, Some(&schema))?;
         // debug!("combined entities: {:?}", combined_entities);
-        // 执行授权检查
+        // Run the authorization check
         let response =
             self.authorizer
                 .is_authorized(request, &effective_policies, &combined_entities);
@@ -131,11 +131,11 @@ impl CedarAuthService {
                 for policy_id in response.diagnostics().reason() {
                     if let Some(policy) = &effective_policies.policy(policy_id) {
                         debug!(
-                            "UserID:{} 请求放行，原因：{:#?}",
+                            "UserID:{} allowed, reason: {:#?}",
                             user_id,
                             policy
                                 .annotation("annotation")
-                                .unwrap_or("没有设置 @annotation")
+                                .unwrap_or("no @annotation set")
                         );
                     }
                 }
@@ -145,20 +145,20 @@ impl CedarAuthService {
                 for policy_id in response.diagnostics().reason() {
                     if let Some(policy) = &effective_policies.policy(policy_id) {
                         debug!(
-                            "UserID:{} 请求拒绝，原因：{:#?}",
+                            "UserID:{} denied, reason: {:#?}",
                             user_id,
                             policy
                                 .annotation("annotation")
-                                .unwrap_or("没有设置 @annotation")
+                                .unwrap_or("no @annotation set")
                         );
                         return Err(forbidden!("access denied"));
                     }
                 }
 
                 for error in response.diagnostics().errors() {
-                    error!("错误: {}", error);
+                    error!("Error: {}", error);
                 }
-                debug!("UserID {} 请求拒绝，原因：没有匹配到放行规则", user_id);
+                debug!("UserID {} denied, reason: no permit rule matched", user_id);
                 Err(forbidden!("access denied[No Policy]".to_string()))
             }
         }
@@ -218,7 +218,7 @@ impl CedarAuthService {
         let mut schema_guard = self.schema.write().await;
         *schema_guard = new_schema.clone();
         self.cache_service.update_schema(new_schema).await;
-        info!("CacheService Schema已更新。");
+        info!("CacheService schema updated.");
     }
 
     pub async fn get_schema_copy(&self) -> Schema {

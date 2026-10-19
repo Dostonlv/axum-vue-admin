@@ -47,13 +47,13 @@ pub async fn list_roles(
 
 #[utoipa::path(
     get,
-    path = "/{role_uuid}",  // 路径中的 {id} 会被识别为参数
+    path = "/{role_uuid}",  // {id} in the path is treated as a parameter
     params(
-        ("role_id" = String, Path, description = "角色唯一UUID")
+        ("role_id" = String, Path, description = "Role UUID")
     ),
     responses(
-        (status = 200, description = "角色详情", body = RoleResponse),
-        (status = 404, description = "角色不存在"),
+        (status = 200, description = "Role details", body = RoleResponse),
+        (status = 404, description = "Role not found"),
     ),
     tag = ROLE_TAG,
     security(
@@ -74,8 +74,8 @@ pub async fn get_role(
     post,
     path = "",
     request_body=CreateRoleDto,
-    responses(( status=201, body=RoleResponse, description = "角色创建成功"),
-                (status=409, description = "角色已存在"),),
+    responses(( status=201, body=RoleResponse, description = "Role created"),
+                (status=409, description = "Role already exists"),),
     tag = ROLE_TAG,
     security(
       ("bearerAuth" = [])
@@ -96,8 +96,8 @@ pub async fn create_role(
     put,
     path = "/{role_uuid}",
     request_body=UpdateRoleDto,
-    responses(  (status=200, body=RoleResponse, description="更新成功"),
-                (status=404, description="角色不存在"),),
+    responses(  (status=200, body=RoleResponse, description="Updated"),
+                (status=404, description="Role not found"),),
     tag = ROLE_TAG,
     security(
       ("bearerAuth" = [])
@@ -121,9 +121,9 @@ pub async fn update_role(
     delete,
     path = "/{role_uuid}",
     params(
-        ("role_uuid" = String, Path, description = "角色唯一UUID")
+        ("role_uuid" = String, Path, description = "Role UUID")
     ),
-    responses(( status=204, description="删除成功"),),
+    responses(( status=204, description="Deleted"),),
     tag = ROLE_TAG,
     security(
       ("bearerAuth" = [])

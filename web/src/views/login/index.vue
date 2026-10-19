@@ -101,7 +101,7 @@ async function handleLogin() {
 
   } catch (error) {
 
-    $message.error(error.message || '登录失败，请检查您的凭据')
+    $message.error(error.message || t('views.login.login_failed_check'))
     console.error('Login failed in component:', error);
 
   } finally {

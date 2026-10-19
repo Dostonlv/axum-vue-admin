@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
 import * as groupApi from '@/api/modules/userGroups';
-import * as roleApi from '@/api/modules/roles'; // 复用角色API
+import * as roleApi from '@/api/modules/roles'; // reuse the role API
 
 export const useUserGroupStore = defineStore('userGroup', {
     state: () => ({
-        // 用户组列表
+        // Group list
         groups: [],
         pagination: {
             page: 1,
@@ -13,21 +13,21 @@ export const useUserGroupStore = defineStore('userGroup', {
         },
         isTableLoading: false,
 
-        // 角色分配抽屉所需的状态
-        allRoles: [], // 所有可用角色的列表
-        currentGroupRoles: [], // 当前正在编辑的用户组所拥有的角色列表
-        isRoleTreeLoading: false, // 角色树的加载状态（例如，勾选/取消勾选时）
+        // State for the role assignment drawer
+        allRoles: [], // all available roles
+        currentGroupRoles: [], // roles of the group being edited
+        isRoleTreeLoading: false, // role tree loading state (e.g. while checking/unchecking)
     }),
 
     getters: {
-        // 将角色列表转换为 NTree 需要的数据格式
+        // Convert the role list to the format NTree expects
         roleTreeOptions: (state) => {
             return state.allRoles.map(role => ({
                 key: role.uuid,
                 label: role.name,
             }));
         },
-        // 从当前用户组的角色列表中计算出需要勾选的 key
+        // Work out which keys to check from the group's roles
         checkedRoleKeys: (state) => {
             return state.currentGroupRoles.map(role => role.uuid);
         },
@@ -60,21 +60,21 @@ export const useUserGroupStore = defineStore('userGroup', {
         },
 
 
-        // 获取所有角色，用于填充权限树
+        // Fetch all roles to fill the permission tree
         async fetchAllRoles() {
-            // 避免重复获取
+            // Skip if already loaded
             if (this.allRoles.length > 0) return;
             const response = await roleApi.getRoles({ pageSize: 999, fields: 'uuid,name' });
             this.allRoles = response.data;
         },
 
-        // 获取特定用户组的角色
+        // Fetch the roles of one group
         async fetchGroupRoles(groupId) {
             const response = await groupApi.getGroupRoles(groupId);
             this.currentGroupRoles = response.data;
         },
 
-        // 为用户组分配角色 (对应勾选操作)
+        // Assign a role to a group (on check)
         async assignRoleToGroup(groupId, roleId) {
             this.isRoleTreeLoading = true;
             try {
@@ -85,7 +85,7 @@ export const useUserGroupStore = defineStore('userGroup', {
             }
         },
 
-        // 从用户组撤销角色 (对应取消勾选操作)
+        // Revoke a role from a group (on uncheck)
         async revokeRoleFromGroup(groupId, roleId) {
             this.isRoleTreeLoading = true;
             try {

@@ -13,8 +13,7 @@ use crate::{bad_request, conflict, not_found};
 
 use crate::common::entities::{get_group_entities, get_role_entities};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, JoinType,
-    ModelTrait, PaginatorTrait, QueryFilter, QuerySelect, RelationTrait, Set,
+    ActiveModelTrait, ColumnTrait, Condition, EntityTrait, JoinType, PaginatorTrait, QueryFilter, QuerySelect, RelationTrait, Set,
     TransactionTrait,
 };
 use serde_json::Value;
@@ -51,7 +50,7 @@ impl GroupService {
             .fields
             .map(|f| f.split(',').map(|s| s.trim().to_string()).collect())
             .unwrap_or_else(|| {
-                // 默认返回所有字段
+                // Return all fields by default
                 ["id", "name", "description", "created_at", "updated_at"]
                     .iter()
                     .map(|s| s.to_string())
@@ -222,7 +221,7 @@ impl GroupService {
             .await?
             .ok_or(not_found!("group not found".to_string()))?;
 
-        // 检查该组是否还有用户
+        // Check whether the group still has users
         let user_count = user_group_members::Entity::find()
             .filter(user_group_members::Column::GroupId.eq(group_id))
             .count(&txn)

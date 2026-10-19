@@ -3,7 +3,7 @@ use std::fs;
 use std::path::Path;
 use validator::Validate;
 
-// 配置模块入口
+// Config module entry
 pub mod app;
 pub mod auth;
 pub mod database;
@@ -24,7 +24,7 @@ pub struct AppConfig {
 }
 
 impl AppConfig {
-    /// 从文件加载配置
+    /// Load config from a file
     pub fn load_config<P: AsRef<Path>>(path: P) -> Result<AppConfig, anyhow::Error> {
         let content = fs::read_to_string(path)?;
         let mut config: AppConfig = toml::from_str(&content)?;
@@ -41,14 +41,14 @@ impl AppConfig {
         Ok(config)
     }
 
-    /// 创建默认配置文件
+    /// Write a default config file
     pub fn get_default_config() -> String {
         let default_config = Self::default();
         let toml_content = toml::to_string_pretty(&default_config);
         toml_content.unwrap_or_else(|_| "".to_string())
     }
 
-    /// 验证配置
+    /// Validate the config
     pub fn validate(&self) -> Result<(), anyhow::Error> {
         self.server.validate()?;
         self.database.validate()?;
@@ -57,7 +57,7 @@ impl AppConfig {
         Ok(())
     }
 
-    /// 获取服务器地址
+    /// Get the server address
     pub fn server_address(&self) -> String {
         format!("{}:{}", self.server.host, self.server.port)
     }

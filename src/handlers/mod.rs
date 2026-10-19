@@ -1,4 +1,4 @@
-// # 路由模块入口
+// # Route module entry
 
 pub mod audit_log;
 pub mod auth;

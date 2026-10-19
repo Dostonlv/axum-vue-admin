@@ -1,11 +1,11 @@
 import dayjs from 'dayjs'
 
 /**
- * * 此处定义的是全局常量，启动或打包后将添加到window中
+ * * Global constants defined here are added to window on start or build
  * https://vitejs.cn/config/#define
  */
 
-// 项目构建时间
+// Build time
 const _BUILD_TIME_ = JSON.stringify(dayjs().format('YYYY-MM-DD HH:mm:ss'))
 
 export const viteDefine = {

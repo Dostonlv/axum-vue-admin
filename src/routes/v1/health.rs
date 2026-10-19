@@ -1,1 +1,1 @@
-// 健康检查路由
+// Health check routes

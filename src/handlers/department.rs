@@ -31,8 +31,8 @@ pub async fn list_departments(
     post,
     path = "",
     request_body=CreateDepartmentDto,
-    responses(( status=201, body=DepartmentResponse, description = "创建部门成功"),
-                (status=409, description = "部门已存在"),),
+    responses(( status=201, body=DepartmentResponse, description = "Department created"),
+                (status=409, description = "Department already exists"),),
     tag = DEPARTMENT_TAG,
     security(
       ("bearerAuth" = [])
@@ -55,10 +55,10 @@ pub async fn create_department(
     path = "/{dept_uuid}",
     request_body=CreateDepartmentDto,
     params(
-        ("dept_uuid" = String, Path, description = "部门唯一UUID")
+        ("dept_uuid" = String, Path, description = "Department UUID")
     ),
-    responses(  (status=200, body=DepartmentResponse, description="更新成功"),
-                (status=404, description="部门不存在"),),
+    responses(  (status=200, body=DepartmentResponse, description="Updated"),
+                (status=404, description="Department not found"),),
     tag = DEPARTMENT_TAG,
     security(
       ("bearerAuth" = [])
@@ -81,12 +81,12 @@ pub async fn update_department(
     delete,
     path = "/{dept_uuid}",
     params(
-        ("dept_uuid" = String, Path, description = "部门唯一UUID")
+        ("dept_uuid" = String, Path, description = "Department UUID")
     ),
     responses(
-    ( status=204, description="删除成功"),
-    ( status=404, description="部门不存在"),
-    ( status=403, description="删除错误"),
+    ( status=204, description="Deleted"),
+    ( status=404, description="Department not found"),
+    ( status=403, description="Cannot delete"),
     ),
     tag = DEPARTMENT_TAG,
     security(
@@ -105,15 +105,15 @@ pub async fn delete_department(
     Ok(StatusCode::NO_CONTENT)
 }
 
-// GET	/api/departments/{id}/users	获取部门所有用户详情	dept:read
+// GET	/api/departments/{id}/users	list all users of a department	dept:read
 #[utoipa::path(
     get,
     path = "/{dept_uuid}/users",
     params(
-        ("dept_uuid" = String, Path, description = "部门唯一UUID")
+        ("dept_uuid" = String, Path, description = "Department UUID")
     ),
     responses(
-    ( status=200, description="获取成功")
+    ( status=200, description="OK")
     ),
     tag = DEPARTMENT_TAG,
     security(

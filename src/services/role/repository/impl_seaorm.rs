@@ -1,25 +1,20 @@
 use crate::common::cedar_utils::{AuthAction, ResourceType};
 use crate::common::entities::{get_role_entities};
 use crate::config::state::AppState;
-use crate::entity::{group_roles, roles, user_group_members, user_roles, users};
+use crate::entity::roles;
 use crate::errors::app_error::AppError;
 use crate::schemas::auth::Claims;
 use crate::schemas::cedar_policy::CedarContext;
 use crate::schemas::role::{
-    CreateRoleDto, QueryParams, RoleEntityInfo, RoleResponse, UpdateRoleDto,
+    CreateRoleDto, QueryParams, RoleResponse, UpdateRoleDto,
 };
-use crate::schemas::user::UserUUID;
-use crate::{bad_request, conflict, not_found};
-use cedar_policy::{
-    Entities, Entity, EntityId, EntityTypeName, EntityUid, RestrictedExpression, Schema,
-};
+use crate::{conflict, not_found};
 use sea_orm::{
-    ActiveModelTrait, ColumnTrait, Condition, DatabaseConnection, EntityTrait, PaginatorTrait,
-    QueryFilter, QuerySelect, QueryTrait, Select, Set, TransactionTrait,
+    ActiveModelTrait, ColumnTrait, EntityTrait, PaginatorTrait,
+    QueryFilter, QuerySelect, QueryTrait, Set,
 };
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
-use std::str::FromStr;
+use std::collections::HashSet;
 use tracing::debug;
 use uuid::Uuid;
 
@@ -59,15 +54,15 @@ impl RoleService {
                     .collect()
             });
         debug!("requested_fields: {:?}", requested_fields);
-        // 构建基础查询
+        // Base query
         let mut select = roles::Entity::find().select_only();
 
-        // 应用通用过滤条件
+        // Apply the common filters
         if let Some(role_name) = &params.name {
             select = select.filter(roles::Column::RoleName.contains(role_name));
         }
 
-        // 动态添加字段
+        // Add fields dynamically
         for field in &requested_fields {
             select = match field.as_str() {
                 "id" => select.column(roles::Column::RoleUuid),
@@ -77,7 +72,7 @@ impl RoleService {
                 "role_name" => select.column(roles::Column::RoleName),
                 "description" => select.column(roles::Column::Description),
                 "created_at" => select.column(roles::Column::CreatedAt),
-                _ => select, // 忽略未知字段
+                _ => select, // ignore unknown fields
             };
         }
 
@@ -88,7 +83,7 @@ impl RoleService {
         let total = paginator.num_items().await?;
         let results = paginator.fetch_page(params.page - 1).await?;
 
-        // 安全的序列化
+        // Serialize safely
         let response = results
             .into_iter()
             .map(|role| serde_json::to_value(role))

@@ -5,7 +5,7 @@ use redis::{AsyncCommands, Client as RedisClient};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::RwLock;
-use tracing::{debug, error, instrument, warn};
+use tracing::{debug, error, warn};
 
 const DEFAULT_LOCAL_CACHE_SIZE: u64 = 1000;
 const DEFAULT_LOCAL_TTL_SECS: u64 = 300; // 5 minutes
@@ -46,15 +46,15 @@ impl CacheService {
                 self.local_cache
                     .insert(cache_key.to_string(), cache_value)
                     .await;
-                debug!("从 Redis 加载实体[CacheKey:{}]并缓存在本地", cache_key);
+                debug!("Loaded entity [CacheKey:{}] from Redis into the local cache", cache_key);
                 Ok(Some(entities))
             }
             Ok(None) => {
-                debug!("Redis 中未找到实体[CacheKey: {}]", cache_key);
+                debug!("Entity [CacheKey: {}] not found in Redis", cache_key);
                 Ok(None)
             }
             Err(e) => {
-                warn!("无法从 Redis 获取用户实体：{}", e);
+                warn!("Cannot get user entity from Redis: {}", e);
                 Ok(None)
             }
         }
@@ -65,7 +65,7 @@ impl CacheService {
         cache_key: &str,
         entities: Entities,
     ) -> Result<(), AppError> {
-        // 解析实体以验证格式并存入本地缓存
+        // Parse the entity to validate its format, then keep it in the local cache
         let schema = self.schema.read().await;
         let parsed_entities = Entities::from_entities(entities, Some(&schema))?;
         let cache_v = parsed_entities.to_json_value()?.to_string();
@@ -74,27 +74,27 @@ impl CacheService {
     }
 
     pub async fn invalidate_user_entities(&self, cache_key: String) -> Result<(), AppError> {
-        // 从本地缓存删除
+        // Remove from the local cache
         self.local_cache.invalidate(&cache_key).await;
 
-        // 从Redis删除
+        // Remove from Redis
         if let Err(e) = self.delete_from_redis(&cache_key).await {
-            warn!("无法从 Redis 中删除实体[{}]：{}", cache_key, e);
+            warn!("Cannot delete entity [{}] from Redis: {}", cache_key, e);
         }
 
-        debug!("用户实体失效");
+        debug!("User entity invalidated");
         Ok(())
     }
 
     pub async fn update_schema(&self, new_schema: Schema) {
         let mut schema = self.schema.write().await;
         *schema = new_schema;
-        // 清空本地缓存，因为schema变更可能影响实体解析
+        // Clear the local cache; a schema change can affect entity parsing
         self.local_cache.invalidate_all();
-        debug!("缓存架构已更新，本地缓存已清除");
+        debug!("Cache schema updated, local cache cleared");
     }
 
-    // 获取缓存统计信息
+    // Cache stats
     pub async fn get_cache_stats(&self) -> CacheStats {
         CacheStats {
             local_cache_size: self.local_cache.entry_count(),
@@ -115,8 +115,8 @@ impl CacheService {
     }
 
     /*
-       非必要情况下，应该为每次缓存设置一个TTL.
-       ttl_secs 应该大于 DEFAULT_LOCAL_TTL_SECS(这是本地缓存的时间) 值
+       Unless there is a good reason not to, always set a TTL.
+       ttl_secs should be larger than DEFAULT_LOCAL_TTL_SECS (the local cache TTL)
     */
     pub async fn set_cache(
         &self,
@@ -131,11 +131,11 @@ impl CacheService {
 
         match redis_result {
             Ok(_) => {
-                debug!("实体[{}]缓存成功", cache_key);
+                debug!("Entity [{}] cached", cache_key);
                 Ok(())
             }
             Err(e) => {
-                error!("无法将实体[{}]缓存到 Redis：{}", cache_key, e);
+                error!("Cannot cache entity [{}] in Redis: {}", cache_key, e);
                 Ok(())
             }
         }
@@ -155,7 +155,7 @@ impl CacheService {
     ) -> Result<(), AppError> {
         let mut conn = self.redis_client.get_multiplexed_tokio_connection().await?;
         if let Some(ttl_secs) = ttl_secs {
-            debug!("缓存Key : {key}, ttl_secs: {ttl_secs}");
+            debug!("Cache key: {key}, ttl_secs: {ttl_secs}");
             let _: () = conn.set_ex(key, value, ttl_secs).await?;
             return Ok(());
         }

@@ -12,14 +12,14 @@ export const useUserManagementStore = defineStore('userManagement', {
         roles: [],
         currentUserRoles: [],
 
-        // Pagination 分页参数
+        // Pagination params
         pagination: {
             page: 1,
             pageSize: 10,
             total: 0,
         },
 
-        // Loading 状态
+        // Loading state
         isTableLoading: false,
         isDependenciesLoading: false,
     }),

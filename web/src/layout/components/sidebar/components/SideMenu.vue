@@ -24,7 +24,7 @@ const appStore = useAppStore()
 const activeKey = computed(() => curRoute.meta?.activeMenu || curRoute.name)
 
 const menuOptions = computed(() => {
-  // 获取所有已定义的路由
+  // All defined routes
   const allRoutes = router.getRoutes();
   const routeTree = buildRouteTree(allRoutes)
   const filterRoutes = routeTree.filter(route => {
@@ -57,7 +57,7 @@ function getMenuItem(route) {
     return menuItem
   }
 
-  // 处理单个子路由“上提”的情况
+  // A single child route gets promoted to the parent
   if (visibleChildren.length === 1) {
     const singleRoute = visibleChildren[0]
     menuItem.label = singleRoute.meta?.title || singleRoute.name
@@ -65,14 +65,14 @@ function getMenuItem(route) {
     menuItem.path = singleRoute.path
     menuItem.icon = getIcon(singleRoute.meta)
 
-    // 如果这个唯一的子路由自己还有子路由，把它们作为当前菜单的子菜单
+    // If that only child has children of its own, they become the submenu
     if (singleRoute.children && singleRoute.children.length > 0) {
       menuItem.children = singleRoute.children
           .map((item) => getMenuItem(item))
           .sort((a, b) => a.order - b.order)
     }
   } else {
-    // 处理多个子路由的情况
+    // Several child routes
     menuItem.children = visibleChildren
         .map((item) => getMenuItem(item))
         .sort((a, b) => a.order - b.order)
@@ -108,21 +108,21 @@ function buildRouteTree(routes) {
   }
 
   for (const route of routes) {
-    // 寻找父级路由。通常子路由的 path 是在父路由 path 基础上拼接的
-    // 注意：这里需要一个可靠的方式找到父级，如果路由 name 规范，也可以用 name
+    // Find the parent route. A child path is usually the parent path plus a suffix
+    // Note: we need a reliable way to find the parent; the route name works too if names are consistent
     const segments = route.path.split('/').filter(Boolean);
 
     if (segments.length > 1) {
-      // 尝试找到父级 path
+      // Try to find the parent path
       const parentPath = '/' + segments.slice(0, -1).join('/');
       const parentNode = routeMap.get(parentPath);
 
       if (parentNode) {
-        // 找到父节点，将当前路由加入其 children
+        // Parent found, add this route to its children
         parentNode.children.push(routeMap.get(route.path));
       }
     } else {
-      // 根路径或一级路径，视为顶级路由
+      // Root or first-level path, treat as a top-level route
       topLevelRoutes.push(routeMap.get(route.path));
     }
   }

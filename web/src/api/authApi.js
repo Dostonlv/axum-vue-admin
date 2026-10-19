@@ -1,18 +1,18 @@
 // src/api/authApi.js
-import http from './http'; // 导入我们重构后的中心化 http 客户端
+import http from './http'; // shared http client
 
 export const authApi = {
     /**
-     * 用户登录
+     * Log in
      * @param {object} credentials - { username, password }
-     * @returns {Promise<object>} - 包含 token 等信息的响应
+     * @returns {Promise<object>} - response with the token
      */
     login: (credentials) => {
         return http.post('/auth/basic/login', credentials);
     },
 
     /**
-     * 用户注销
+     * Log out
      * @returns {Promise<any>}
      */
     logout: () => {
@@ -20,32 +20,32 @@ export const authApi = {
     },
 
     /**
-     * 刷新 Access Token
-     * @returns {Promise<object>} - 包含新 token 的响应
+     * Refresh the access token
+     * @returns {Promise<object>} - response with the new token
      */
     refreshToken: () => {
         return http.post('/auth/basic/refresh_token');
     },
 
     /**
-     * 获取当前登录用户的信息
-     * @returns {Promise<object>} - 用户信息
+     * Fetch the current user's profile
+     * @returns {Promise<object>} - user profile
      */
     getCurrentUserProfile: () => {
         return http.get('/me/profile');
     },
 
     /**
-     * 更新当前登录用户的信息
-     * @param {object} userData - 需要更新的用户数据
-     * @returns {Promise<object>} - 更新后的用户信息
+     * Update the current user's profile
+     * @param {object} userData - fields to update
+     * @returns {Promise<object>} - updated profile
      */
     updateCurrentUserProfile: (userData) => {
         return http.put('/me/profile', userData);
     },
 
     /**
-     * 修改当前用户的密码
+     * Change the current user's password
      * @param {object} passwordData - { oldPassword, newPassword }
      * @returns {Promise<any>}
      */
@@ -54,7 +54,7 @@ export const authApi = {
     },
 
     /**
-     * 忘记密码（请求重置）
+     * Forgot password (request a reset)
      * @param {object} resetData - { email: '', language: '' }
      * @returns {Promise<any>}
      */
@@ -63,7 +63,7 @@ export const authApi = {
     },
 
     /**
-     * 根据 token 重置密码
+     * Reset the password with a token
      * @param {string} resetToken
      * @param {object} resetData - { password }
      * @returns {Promise<any>}

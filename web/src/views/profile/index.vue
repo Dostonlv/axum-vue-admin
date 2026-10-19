@@ -10,7 +10,7 @@ const { t } = useI18n()
 const userStore = useUserStore()
 const isLoading = ref(false)
 
-// 用户信息的表单
+// Profile form
 const infoFormRef = ref(null)
 const infoForm = ref({
   avatar: userStore.avatar,
@@ -43,7 +43,7 @@ const infoFormRules = {
   ],
 }
 
-// 修改密码的表单
+// Password form
 const passwordFormRef = ref(null)
 const passwordForm = ref({
   old_password: '',

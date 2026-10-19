@@ -1,4 +1,4 @@
-// 中间件模块入口
+// Middleware module entry
 
 pub mod audit_log;
 pub mod auth_guard;

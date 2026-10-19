@@ -1,4 +1,4 @@
-// 认证相关路由（登录、SSO等）
+// Auth routes (login, SSO, ...)
 
 use utoipa_axum::router::OpenApiRouter;
 use utoipa_axum::routes;

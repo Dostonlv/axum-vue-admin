@@ -1,10 +1,10 @@
-use std::collections::{HashSet, HashMap};
-use cedar_policy::{EntityUid, RestrictedExpression};
+use std::collections::HashMap;
+use cedar_policy::RestrictedExpression;
 use crate::entity::{cedar_policy_set, departments, roles, user_groups};
 use super::trait_def::ToCedarEntity;
 use super::constants::*;
 
-// Role 映射
+// Role mapping
 impl ToCedarEntity for roles::Model {
     fn entity_type() -> &'static str { ENTITY_TYPE_ROLE }
     fn entity_id(&self) -> String { self.role_uuid.to_string() }
@@ -15,7 +15,7 @@ impl ToCedarEntity for roles::Model {
     }
 }
 
-// Group 映射
+// Group mapping
 impl ToCedarEntity for user_groups::Model {
     fn entity_type() -> &'static str { ENTITY_TYPE_GROUP }
     fn entity_id(&self) -> String { self.user_group_uuid.clone() }
@@ -26,7 +26,7 @@ impl ToCedarEntity for user_groups::Model {
     }
 }
 
-// Department 映射
+// Department mapping
 impl ToCedarEntity for departments::Model {
     fn entity_type() -> &'static str { ENTITY_TYPE_DEPARTMENT }
     fn entity_id(&self) -> String { self.dept_uuid.clone() }
@@ -37,7 +37,7 @@ impl ToCedarEntity for departments::Model {
     }
 }
 
-// Policy 映射
+// Policy mapping
 impl ToCedarEntity for cedar_policy_set::Model {
     fn entity_type() -> &'static str { ENTITY_TYPE_POLICY }
     fn entity_id(&self) -> String { self.policy_uuid.to_string() }

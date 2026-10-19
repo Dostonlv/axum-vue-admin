@@ -17,7 +17,9 @@
       "forget_password": "忘记密码",
       "invalidUsername": "用户名不存在",
       "incorrectPassword": "密码错误",
-      "userHasDisabled": "用户已禁用"
+      "userHasDisabled": "用户已禁用",
+      "login_failed": "登录失败",
+      "login_failed_check": "登录失败，请检查您的凭据"
     },
     "forget_password": {
       "forget_password": "忘记密码",
@@ -39,7 +41,8 @@
       "label_upcoming": "待办",
       "label_information": "消息",
       "label_project": "项目",
-      "label_more": "更多"
+      "label_more": "更多",
+      "text_description": "一个基于 Axum、SeaORM、Cedar Policy、Vue3.0、Naive UI 的轻量级后台管理模板"
     },
     "profile": {
       "label_profile": "个人中心",
@@ -65,6 +68,126 @@
     "errors": {
       "label_error": "错误页",
       "text_back_to_home": "返回首页"
+    },
+    "system": {
+      "cedar": {
+        "warn_title": "注意!!!",
+        "warn_content": "请慎重操作,错误的修改可能会导致权限失效！",
+        "warn_ok": "我明白",
+        "warn_cancel": "不改了"
+      },
+      "user": {
+        "new": "新建用户",
+        "edit": "编辑用户",
+        "load_failed": "加载用户失败",
+        "roles_load_failed": "获取角色失败",
+        "select_role": "请选择要添加的角色",
+        "role_added": "角色添加成功",
+        "add_failed": "添加失败",
+        "role_removed": "角色移除成功",
+        "remove_failed": "移除失败",
+        "col_name": "名称",
+        "email": "邮箱",
+        "group": "用户组",
+        "last_login": "上次登录时间",
+        "view_roles": "查看角色",
+        "confirm_delete": "确定删除该用户吗?",
+        "role": "角色",
+        "source": "来源",
+        "confirm_remove_role": "确定删除该用户的直接角色吗?",
+        "enter_name": "请输入名称",
+        "enter_email_address": "请输入邮箱地址",
+        "invalid_email": "邮箱格式错误",
+        "enter_password": "请输入密码",
+        "select_dept_required": "请选择一个部门",
+        "enter_password_again": "请再次输入密码",
+        "dept_list": "部门列表",
+        "list": "用户列表",
+        "enter_username": "请输入用户名称",
+        "enter_email": "请输入邮箱",
+        "username": "用户名称",
+        "select_dept": "请选择部门",
+        "add_role": "添加角色"
+      },
+      "role": {
+        "new": "新建角色",
+        "edit": "编辑角色",
+        "load_failed": "加载角色失败",
+        "name": "角色名",
+        "description": "角色描述",
+        "confirm_delete": "确定删除该角色吗?",
+        "list": "角色列表",
+        "enter_name": "请输入角色名",
+        "enter_name_required": "请输入角色名称"
+      },
+      "dept": {
+        "new": "新建部门",
+        "edit": "编辑部门",
+        "load_failed": "加载部门失败",
+        "enter_name": "请输入部门名称",
+        "name": "部门名称",
+        "confirm_delete": "确定删除该部门吗?",
+        "list": "部门列表",
+        "parent": "父级部门",
+        "select_parent": "请选择父级部门"
+      },
+      "group": {
+        "load_failed": "加载用户组失败",
+        "roles_load_failed": "获取角色信息失败",
+        "description": "用户组描述",
+        "set_roles": "设置角色",
+        "confirm_delete": "确定删除该用户组吗?",
+        "list": "用户组列表",
+        "new": "新建用户组",
+        "edit": "编辑用户组",
+        "name": "用户组名",
+        "enter_name": "请输入用户组名称",
+        "enter_description": "请输入用户组描述",
+        "filter_roles": "筛选角色",
+        "roles_busy": "正在加载或操作角色，请稍候..."
+      },
+      "policy": {
+        "new": "新建策略",
+        "edit": "编辑策略",
+        "load_failed": "加载策略失败",
+        "sync_success": "同步成功，策略已生效",
+        "sync_failed": "同步失败",
+        "annotation": "注释",
+        "effect": "效果",
+        "type": "类型",
+        "confirm_delete": "确定删除该权限吗?",
+        "list": "访问策略列表",
+        "apply_now": "立即生效",
+        "permit": "允许",
+        "forbid": "禁止",
+        "text": "策略内容",
+        "policy_type": "策略类型"
+      },
+      "schema": {
+        "load_failed": "加载Schema失败",
+        "edit": "编辑Schema",
+        "list": "Schema列表"
+      },
+      "auditlog": {
+        "summary": "接口概要",
+        "module": "功能模块",
+        "method": "请求方法",
+        "path": "请求路径",
+        "status_code": "状态码",
+        "request_body": "请求体",
+        "response_body": "响应体",
+        "response_time": "响应时间(s)",
+        "time": "操作时间",
+        "enter_module": "请输入功能模块",
+        "enter_summary": "请输入接口概要",
+        "select_method": "请选择请求方法",
+        "enter_path": "请输入请求路径",
+        "enter_status_code": "请输入状态码",
+        "select_range": "请选择时间范围"
+      }
+    },
+    "top_menu": {
+      "title": "一级菜单"
     }
   },
   "common": {
@@ -79,7 +202,18 @@
       "update": "修改",
       "reset": "重置",
       "viewDetail": "查看详情",
-      "retry": "重试"
+      "retry": "重试",
+      "edit": "编辑",
+      "delete": "删除",
+      "cancel": "取消",
+      "save": "保存",
+      "search": "搜索",
+      "confirm": "确定",
+      "reload": "重新加载",
+      "close": "关闭",
+      "close_others": "关闭其他",
+      "close_left": "关闭左侧",
+      "close_right": "关闭右侧"
     },
     "fields": {
       "name": "名字",
@@ -101,7 +235,57 @@
       "password": "密码",
       "node": "节点",
       "result_file": "结果文件",
-      "historyId": "记录ID"
+      "historyId": "记录ID",
+      "remark": "备注",
+      "created_date": "创建日期",
+      "order": "排序"
+    },
+    "status": {
+      "enabled": "启用",
+      "disabled": "禁用",
+      "is_enabled": "已启用",
+      "not_enabled": "未启用"
+    },
+    "messages": {
+      "create_success": "创建成功",
+      "update_success": "更新成功",
+      "delete_success": "删除成功",
+      "save_failed": "保存失败",
+      "delete_failed": "删除失败",
+      "operation_failed": "操作失败",
+      "update_failed": "更新失败"
+    },
+    "empty": {
+      "no_data": "暂无数据",
+      "none": "无数据",
+      "network_error": "网络似乎开了小差~",
+      "click_retry": "点击重试"
+    }
+  },
+  "api": {
+    "session_expired": "会话已过期，请重新登录。",
+    "unknown_error": "发生未知错误",
+    "bad_request": "请求参数错误",
+    "forbidden": "您没有权限执行此操作",
+    "not_found": "请求的资源未找到",
+    "server_error": "服务器内部错误",
+    "request_failed": "请求失败",
+    "network_error": "网络连接异常，请检查您的网络",
+    "cancelled": "请求已取消"
+  },
+  "menu": {
+    "system": "系统管理",
+    "user": "用户管理",
+    "group": "用户组管理",
+    "role": "角色管理",
+    "dept": "部门管理",
+    "cedar_policy": "CedarPolicy管理",
+    "cedar_schema": "CedarSchema管理"
+  },
+  "components": {
+    "icon_picker": {
+      "placeholder": "请输入图标名称",
+      "more": "更多图标去 {link} 查看"
     }
   }
 }

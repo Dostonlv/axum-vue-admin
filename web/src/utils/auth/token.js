@@ -20,7 +20,7 @@ export function removeToken() {
 //     return
 //   }
 //   const { time } = tokenItem
-//   // token生成或者刷新后30分钟内不执行刷新
+//   // do not refresh within 30 minutes of the token being issued or refreshed
 //   if (new Date().getTime() - time <= 1000 * 60 * 30) return
 //   try {
 //     const res = await api.refreshToken()

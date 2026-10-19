@@ -74,7 +74,7 @@ pub struct CedarSchemaResponse {
     pub updated_at: DateTime<Utc>,
 }
 
-/// 一持久化的模板链接信息。
+/// A persisted template link.
 #[serde_as]
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TemplateLinkRecord {

@@ -39,6 +39,6 @@ pub fn verify_refresh_token(token: &str) -> Result<Claims, jsonwebtoken::errors:
 }
 fn main() -> anyhow::Result<()> {
     let token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwZGQzNGQ2Yi05ZmY2LTRlNWEtYWIyYi0zYWUxN2Q3YjRmNTYiLCJpYXQiOjE3NjQxNDAwOTMsImV4cCI6MTgwMDQyODA5MywianRpIjoiMjExYmZmZDQtNDY3YS00NDUwLWJkYjgtYjk4YmRjZTg4ZjMzIiwibmFtZSI6InN1cGVyYWRtaW4iLCJkZXB0X3V1aWQiOiJlMDUxMzAzZC0xZTlmLTQwYmYtOTc5ZC1mNzYwY2RjMWU5NjgiLCJ0b2tlbl90eXBlIjoiUmVmcmVzaCIsImlzX3N1cGVyX2FkbWluIjp0cnVlfQ.uL4YKHKpCjPU_WxLhL_GA9VR4AsA235dTeVvrai0Pqc";
-    let decoded = verify_refresh_token(token)?;
+    let _decoded = verify_refresh_token(token)?;
     Ok(())
 }

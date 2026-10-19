@@ -1,1 +1,1 @@
-// SSO相关工具
+// SSO helpers

@@ -92,7 +92,7 @@ function onPageSizeChange(pageSize) {
 }
 
 function onChecked(rowKeys) {
-  // 仅当存在选择列时才发出事件
+  // Only emit when there is a selection column
   if (props.columns.some((item) => item.type === 'selection')) {
     emit('onChecked', rowKeys)
   }

@@ -1,12 +1,12 @@
-// 实体类型名称
+// Entity type names
 pub const ENTITY_TYPE_USER: &str = "User";
 pub const ENTITY_TYPE_ROLE: &str = "Role";
 pub const ENTITY_TYPE_GROUP: &str = "Group";
 pub const ENTITY_TYPE_DEPARTMENT: &str = "Department";
 pub const ENTITY_TYPE_POLICY: &str = "Policy";
 
-// 属性名称
-// Cedar 使用的常量
+// Attribute names
+// Constants used by Cedar
 const  APPLICATION_ENTITY_UID: &str = r#"Application::"VueAxumAdmin""#;
 
 pub const  ENTITY_TYPE_ROBOT: &str = "Robot";
@@ -15,7 +15,7 @@ pub const  ENTITY_TYPE_ROBOT_ACCOUNT: &str = "RobotAccount";
 pub const  ENTITY_ATTR_NAME: &str = "name";
 pub const ENTITY_ATTR_OWNERS: &str = "owners";
 
-// 缓存前缀
+// Cache key prefixes
 pub const USER_ENTITIES_CACHE_PREFIX: &str = "authz:user_entities";
 pub const ROLE_ENTITIES_CACHE_PREFIX: &str = "authz:role_entities";
 

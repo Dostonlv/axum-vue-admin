@@ -29,7 +29,7 @@
 
             rust-analyzer
             nodejs
-            pnpm
+            pnpm_10
           ];
           RUST_SRC_PATH = "${pkgs.rustPlatform.rustLibSrc}";
         };

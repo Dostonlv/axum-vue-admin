@@ -1,0 +1,291 @@
+{
+  "lang": "O'zbekcha",
+  "app_name": "Axum Vue Admin",
+  "header": {
+    "label_profile": "Profil",
+    "label_logout": "Chiqish",
+    "label_logout_dialog_title": "Eslatma",
+    "text_logout_confirm": "Tizimdan chiqmoqchimisiz?",
+    "text_logout_success": "Tizimdan chiqdingiz"
+  },
+  "views": {
+    "login": {
+      "text_login": "Kirish",
+      "message_input_username_password": "Foydalanuvchi nomi va parolni kiriting",
+      "message_verifying": "Tekshirilmoqda...",
+      "message_login_success": "Muvaffaqiyatli kirdingiz",
+      "forget_password": "Parolni unutdingizmi?",
+      "invalidUsername": "Bunday foydalanuvchi topilmadi",
+      "incorrectPassword": "Parol noto'g'ri",
+      "userHasDisabled": "Foydalanuvchi o'chirilgan",
+      "login_failed": "Kirib bo'lmadi",
+      "login_failed_check": "Kirib bo'lmadi, ma'lumotlaringizni tekshiring"
+    },
+    "forget_password": {
+      "forget_password": "Parolni unutdingizmi?",
+      "send_password_reset_email": "Parolni tiklash xatini yuborish",
+      "message_forget_password_success": "Parolni tiklash xati yuborildi",
+      "sendEmailSuccess": "Parolni tiklash bo'yicha ko'rsatmalar uchun pochtangizni tekshiring",
+      "notFound": "Bunday email topilmadi"
+    },
+    "resetPassword": {
+      "resetPassword": "Parolni tiklash",
+      "resetSuccessful": "Parol muvaffaqiyatli tiklandi",
+      "tokenNotFound": "Havolaning muddati tugagan"
+    },
+    "workbench": {
+      "label_workbench": "Ish stoli",
+      "text_hello": "Salom, {username}",
+      "text_welcome": "Bugun ham ish kuni, omad!",
+      "label_number_of_items": "Loyihalar soni",
+      "label_upcoming": "Rejalashtirilgan",
+      "label_information": "Xabarlar",
+      "label_project": "Loyiha",
+      "label_more": "Ko'proq",
+      "text_description": "Axum, SeaORM, Cedar Policy, Vue 3 va Naive UI asosidagi yengil admin shabloni"
+    },
+    "profile": {
+      "label_profile": "Profil",
+      "label_modify_information": "Ma'lumotlarni tahrirlash",
+      "label_change_password": "Parolni o'zgartirish",
+      "label_avatar": "Avatar",
+      "label_username": "Foydalanuvchi nomi",
+      "label_email": "Email",
+      "label_old_password": "Eski parol",
+      "label_new_password": "Yangi parol",
+      "label_confirm_password": "Parolni tasdiqlang",
+      "placeholder_username": "Ismingizni kiriting",
+      "placeholder_email": "Email manzilingizni kiriting",
+      "placeholder_old_password": "Eski parolni kiriting",
+      "placeholder_new_password": "Yangi parolni kiriting",
+      "placeholder_confirm_password": "Yangi parolni qayta kiriting",
+      "message_username_required": "Foydalanuvchi nomini kiriting",
+      "message_old_password_required": "Eski parolni kiriting",
+      "message_new_password_required": "Yangi parolni kiriting",
+      "message_password_confirmation_required": "Parolni qayta kiriting",
+      "message_password_confirmation_diff": "Kiritilgan parollar bir xil emas"
+    },
+    "errors": {
+      "label_error": "Xatolik",
+      "text_back_to_home": "Bosh sahifaga qaytish"
+    },
+    "system": {
+      "cedar": {
+        "warn_title": "Diqqat!",
+        "warn_content": "Ehtiyot bo'ling: noto'g'ri o'zgartirish ruxsatlarni buzishi mumkin.",
+        "warn_ok": "Tushundim",
+        "warn_cancel": "Kerak emas"
+      },
+      "user": {
+        "new": "Yangi foydalanuvchi",
+        "edit": "Foydalanuvchini tahrirlash",
+        "load_failed": "Foydalanuvchilarni yuklab bo'lmadi",
+        "roles_load_failed": "Rollarni yuklab bo'lmadi",
+        "select_role": "Qo'shiladigan rolni tanlang",
+        "role_added": "Rol qo'shildi",
+        "add_failed": "Qo'shib bo'lmadi",
+        "role_removed": "Rol olib tashlandi",
+        "remove_failed": "Olib tashlab bo'lmadi",
+        "col_name": "Nomi",
+        "email": "Email",
+        "group": "Guruh",
+        "last_login": "Oxirgi kirish",
+        "view_roles": "Rollarni ko'rish",
+        "confirm_delete": "Bu foydalanuvchi o'chirilsinmi?",
+        "role": "Rol",
+        "source": "Manba",
+        "confirm_remove_role": "Foydalanuvchidan bu rol olib tashlansinmi?",
+        "enter_name": "Nomni kiriting",
+        "enter_email_address": "Email manzilini kiriting",
+        "invalid_email": "Email formati noto'g'ri",
+        "enter_password": "Parolni kiriting",
+        "select_dept_required": "Bo'limni tanlang",
+        "enter_password_again": "Parolni qayta kiriting",
+        "dept_list": "Bo'limlar",
+        "list": "Foydalanuvchilar",
+        "enter_username": "Foydalanuvchi nomini kiriting",
+        "enter_email": "Emailni kiriting",
+        "username": "Foydalanuvchi nomi",
+        "select_dept": "Bo'limni tanlang",
+        "add_role": "Rol qo'shish"
+      },
+      "role": {
+        "new": "Yangi rol",
+        "edit": "Rolni tahrirlash",
+        "load_failed": "Rollarni yuklab bo'lmadi",
+        "name": "Rol nomi",
+        "description": "Rol tavsifi",
+        "confirm_delete": "Bu rol o'chirilsinmi?",
+        "list": "Rollar",
+        "enter_name": "Rol nomini kiriting",
+        "enter_name_required": "Rol nomini kiriting"
+      },
+      "dept": {
+        "new": "Yangi bo'lim",
+        "edit": "Bo'limni tahrirlash",
+        "load_failed": "Bo'limlarni yuklab bo'lmadi",
+        "enter_name": "Bo'lim nomini kiriting",
+        "name": "Bo'lim nomi",
+        "confirm_delete": "Bu bo'lim o'chirilsinmi?",
+        "list": "Bo'limlar",
+        "parent": "Yuqori bo'lim",
+        "select_parent": "Yuqori bo'limni tanlang"
+      },
+      "group": {
+        "load_failed": "Guruhlarni yuklab bo'lmadi",
+        "roles_load_failed": "Guruh rollarini yuklab bo'lmadi",
+        "description": "Guruh tavsifi",
+        "set_roles": "Rollarni belgilash",
+        "confirm_delete": "Bu guruh o'chirilsinmi?",
+        "list": "Guruhlar",
+        "new": "Yangi guruh",
+        "edit": "Guruhni tahrirlash",
+        "name": "Guruh nomi",
+        "enter_name": "Guruh nomini kiriting",
+        "enter_description": "Guruh tavsifini kiriting",
+        "filter_roles": "Rollarni saralash",
+        "roles_busy": "Rollar yuklanmoqda yoki yangilanmoqda, kuting..."
+      },
+      "policy": {
+        "new": "Yangi siyosat",
+        "edit": "Siyosatni tahrirlash",
+        "load_failed": "Siyosatlarni yuklab bo'lmadi",
+        "sync_success": "Sinxronlandi, siyosatlar kuchga kirdi",
+        "sync_failed": "Sinxronlab bo'lmadi",
+        "annotation": "Izoh",
+        "effect": "Natija",
+        "type": "Turi",
+        "confirm_delete": "Bu siyosat o'chirilsinmi?",
+        "list": "Kirish siyosatlari",
+        "apply_now": "Hozir qo'llash",
+        "permit": "Ruxsat",
+        "forbid": "Taqiq",
+        "text": "Siyosat matni",
+        "policy_type": "Siyosat turi"
+      },
+      "schema": {
+        "load_failed": "Sxemalarni yuklab bo'lmadi",
+        "edit": "Sxemani tahrirlash",
+        "list": "Sxemalar"
+      },
+      "auditlog": {
+        "summary": "API tavsifi",
+        "module": "Modul",
+        "method": "Usul",
+        "path": "Yo'l",
+        "status_code": "Holat kodi",
+        "request_body": "So'rov tanasi",
+        "response_body": "Javob tanasi",
+        "response_time": "Javob vaqti (s)",
+        "time": "Vaqt",
+        "enter_module": "Modulni kiriting",
+        "enter_summary": "API tavsifini kiriting",
+        "select_method": "Usulni tanlang",
+        "enter_path": "Yo'lni kiriting",
+        "enter_status_code": "Holat kodini kiriting",
+        "select_range": "Vaqt oralig'ini tanlang"
+      }
+    },
+    "top_menu": {
+      "title": "Asosiy menyu"
+    }
+  },
+  "common": {
+    "text": {
+      "severError": "500 Server xatosi",
+      "update_success": "O'zgartirildi",
+      "pagination": "Jami {itemCount} ta",
+      "miss_file": "Fayl topilmadi",
+      "last_schedule_time": "Oxirgi ishga tushirilgan vaqt: {datetimeStr}"
+    },
+    "buttons": {
+      "update": "O'zgartirish",
+      "reset": "Tozalash",
+      "viewDetail": "Batafsil",
+      "retry": "Qayta urinish",
+      "edit": "Tahrirlash",
+      "delete": "O'chirish",
+      "cancel": "Bekor qilish",
+      "save": "Saqlash",
+      "search": "Qidirish",
+      "confirm": "Tasdiqlash",
+      "reload": "Qayta yuklash",
+      "close": "Yopish",
+      "close_others": "Boshqalarini yopish",
+      "close_left": "Chapdagilarini yopish",
+      "close_right": "O'ngdagilarini yopish"
+    },
+    "fields": {
+      "name": "Nomi",
+      "account": "Hisob",
+      "category": "Toifa",
+      "region": "Hudud",
+      "expiration_time": "Amal qilish muddati",
+      "user": "Foydalanuvchi",
+      "dept": "Bo'lim",
+      "robot": "Robot",
+      "detail": "Tafsilotlar",
+      "log": "Jurnal",
+      "start_at": "Boshlanish vaqti",
+      "end_at": "Tugash vaqti",
+      "description": "Tavsif",
+      "status": "Holati",
+      "created_at": "Yaratilgan vaqt",
+      "operate": "Amallar",
+      "password": "Parol",
+      "node": "Tugun",
+      "result_file": "Natija fayli",
+      "historyId": "Yozuv ID",
+      "remark": "Izoh",
+      "created_date": "Yaratilgan sana",
+      "order": "Tartib"
+    },
+    "status": {
+      "enabled": "Yoqilgan",
+      "disabled": "O'chirilgan",
+      "is_enabled": "Yoqilgan",
+      "not_enabled": "O'chirilgan"
+    },
+    "messages": {
+      "create_success": "Yaratildi",
+      "update_success": "Yangilandi",
+      "delete_success": "O'chirildi",
+      "save_failed": "Saqlab bo'lmadi",
+      "delete_failed": "O'chirib bo'lmadi",
+      "operation_failed": "Amalni bajarib bo'lmadi",
+      "update_failed": "Yangilab bo'lmadi"
+    },
+    "empty": {
+      "no_data": "Ma'lumot yo'q",
+      "none": "Ma'lumot yo'q",
+      "network_error": "Tarmoq bilan muammo bor",
+      "click_retry": "qayta urinish uchun bosing"
+    }
+  },
+  "api": {
+    "session_expired": "Sessiya tugadi, qaytadan kiring.",
+    "unknown_error": "Noma'lum xatolik",
+    "bad_request": "So'rov parametrlari noto'g'ri",
+    "forbidden": "Bu amalni bajarishga ruxsatingiz yo'q",
+    "not_found": "Resurs topilmadi",
+    "server_error": "Serverning ichki xatosi",
+    "request_failed": "So'rov bajarilmadi",
+    "network_error": "Tarmoq xatosi, ulanishni tekshiring",
+    "cancelled": "So'rov bekor qilindi"
+  },
+  "menu": {
+    "system": "Tizim",
+    "user": "Foydalanuvchilar",
+    "group": "Guruhlar",
+    "role": "Rollar",
+    "dept": "Bo'limlar",
+    "cedar_policy": "Cedar siyosatlari",
+    "cedar_schema": "Cedar sxemasi"
+  },
+  "components": {
+    "icon_picker": {
+      "placeholder": "Ikonka nomini kiriting",
+      "more": "Ko'proq ikonkalar: {link}"
+    }
+  }
+}

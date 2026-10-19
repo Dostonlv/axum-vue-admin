@@ -45,13 +45,13 @@ pub async fn list_users(
 
 #[utoipa::path(
     get,
-    path = "/{user_uuid}",  // 路径中的 {id} 会被识别为参数
+    path = "/{user_uuid}",  // {id} in the path is treated as a parameter
     params(
-        ("user_uuid" = String, Path, description = "用户唯一UUID")
+        ("user_uuid" = String, Path, description = "User UUID")
     ),
     responses(
-        (status = 200, description = "用户详情", body = UserResponse),
-        (status = 404, description = "用户不存在"),
+        (status = 200, description = "User details", body = UserResponse),
+        (status = 404, description = "User not found"),
     ),
     tag = USER_TAG,
     security(
@@ -72,8 +72,8 @@ pub async fn get_user(
     post,
     path = "",
     request_body=CreateUserDto,
-    responses(( status=201, body=UserResponse, description = "创建用户成功"),
-                (status=409, description = "用户名或邮箱已存在"),),
+    responses(( status=201, body=UserResponse, description = "User created"),
+                (status=409, description = "Username or email already exists"),),
     tag = USER_TAG,
     security(
       ("bearerAuth" = [])
@@ -95,10 +95,10 @@ pub async fn create_user(
     path = "/{user_uuid}",
     request_body=UpdateUserDto,
     params(
-        ("user_uuid" = String, Path, description = "用户唯一UUID")
+        ("user_uuid" = String, Path, description = "User UUID")
     ),
-    responses(  (status=200, body=UserResponse, description="更新成功"),
-                (status=404, description="用户不存在"),),
+    responses(  (status=200, body=UserResponse, description="Updated"),
+                (status=404, description="User not found"),),
     tag = USER_TAG,
     security(
       ("bearerAuth" = [])
@@ -122,9 +122,9 @@ pub async fn update_user(
     delete,
     path = "/{user_uuid}",
     params(
-        ("user_uuid" = String, Path, description = "用户唯一UUID")
+        ("user_uuid" = String, Path, description = "User UUID")
     ),
-    responses(( status=200, description="删除成功"),),
+    responses(( status=200, description="Deleted"),),
     tag = USER_TAG,
     security(
       ("bearerAuth" = [])
@@ -146,9 +146,9 @@ pub async fn delete_user(
     get,
     path = "/{user_uuid}/roles",
     params(
-        ("user_uuid" = String, Path, description = "用户唯一UUID")
+        ("user_uuid" = String, Path, description = "User UUID")
     ),
-    responses(( status=200, description="用户角色列表", body=Vec<UserRoleResponse>),),
+    responses(( status=200, description="User roles", body=Vec<UserRoleResponse>),),
     tag = USER_TAG,
     security(
       ("bearerAuth" = [])
@@ -169,9 +169,9 @@ pub async fn user_roles(
     path = "/{user_uuid}/roles",
     request_body=AssignRoleDto,
     params(
-        ("user_uuid" = String, Path, description = "用户唯一UUID")
+        ("user_uuid" = String, Path, description = "User UUID")
     ),
-    responses(( status=201, description="分配角色成功"),),
+    responses(( status=201, description="Role assigned"),),
     tag = USER_TAG,
     security(
       ("bearerAuth" = [])
@@ -182,7 +182,7 @@ pub async fn assign_roles(
     State(service): State<UserService>,
     Extension(current_user): Extension<Claims>,
     Extension(context): Extension<CedarContext>,
-    Json(dto): Json<AssignRoleDto>, // Json提取器需要放在最后，负责会报错。
+    Json(dto): Json<AssignRoleDto>, // the Json extractor must come last, otherwise it fails to compile
 ) -> Result<impl IntoResponse, AppError> {
     service
         .assign_roles(current_user, context, user_uuid, dto)
@@ -194,10 +194,10 @@ pub async fn assign_roles(
     delete,
     path = "/{user_uuid}/roles/{role_uuid}",
     params(
-        ("user_uuid" = String, Path, description = "用户唯一UUID"),
-        ("role_uuid" = String, Path, description = "角色唯一UUID")
+        ("user_uuid" = String, Path, description = "User UUID"),
+        ("role_uuid" = String, Path, description = "Role UUID")
     ),
-    responses(( status=204, description="移除用户角色成功"),),
+    responses(( status=204, description="Role removed from user"),),
     tag = USER_TAG,
     security(
       ("bearerAuth" = [])

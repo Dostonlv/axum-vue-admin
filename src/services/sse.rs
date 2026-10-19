@@ -1,4 +1,4 @@
-// 一个全局SSE推送服务
+// Global SSE push service
 
 use crate::common::sse::redis_offline_key;
 use crate::config::state::{AppState, SSESenders};
@@ -7,7 +7,7 @@ use redis::AsyncCommands;
 use tokio::sync::mpsc;
 use tokio_stream::{wrappers::ReceiverStream, Stream, StreamExt};
 
-// 负责在 Stream 被 Drop 时，自动从在线用户列表中移除 sender
+// Removes the sender from the online users when the stream is dropped
 struct SseStreamCleanup {
     user_uuid: String,
     sse_senders: SSESenders,
@@ -18,18 +18,18 @@ impl Drop for SseStreamCleanup {
         let user_uuid = self.user_uuid.clone();
         let sse_senders = self.sse_senders.clone();
 
-        // 不能在 drop 中直接 .await，所以需要生成一个新任务来执行异步的清理操作
+        // Can't .await inside drop, so spawn a task for the async cleanup
         tokio::spawn(async move {
             sse_senders.lock().await.remove(&user_uuid);
             tracing::debug!(
-                "用户 {} 的 SSE 连接已关闭，sender 已被自动清理。",
+                "SSE connection for user {} closed, sender cleaned up.",
                 user_uuid
             );
         });
     }
 }
 
-// 全局消息推送
+// Global message push
 #[derive(Clone)]
 pub struct SSEService {
     app_state: AppState,
@@ -45,24 +45,24 @@ impl SSEService {
         user_uuid: String,
         tx: mpsc::Sender<String>,
     ) {
-        // 1. 获取 Redis 连接
+        // 1. Get a Redis connection
         let mut conn = match state_clone.redis.get_multiplexed_async_connection().await {
             Ok(conn) => conn,
             Err(e) => {
-                tracing::error!("[用户 {}] 无法获取离线消息的 Redis 连接：{}”", user_uuid, e);
+                tracing::error!("[user {}] Cannot get a Redis connection for offline messages: {}", user_uuid, e);
                 return;
             }
         };
 
         let key = redis_offline_key(user_uuid.clone());
 
-        // 2. 使用 LRANGE 获取所有消息
-        // LRANGE key 0 -1  获取列表中的所有元素
+        // 2. Read all messages with LRANGE
+        // LRANGE key 0 -1 returns the whole list
         let messages: Vec<String> = match conn.lrange(&key, 0, -1).await {
             Ok(messages) => messages,
             Err(e) => {
                 tracing::error!(
-                    "[用户 {}] 无法从 Redis 键“{}”进行 LRANGE：{}",
+                    "[user {}] LRANGE on Redis key '{}' failed: {}",
                     user_uuid,
                     key,
                     e
@@ -71,42 +71,42 @@ impl SSEService {
             }
         };
 
-        // 如果没有离线消息，就提前结束
+        // Nothing stored, return early
         if messages.is_empty() {
             return;
         }
 
         tracing::debug!(
-            "[用户 {}] 在 Redis 中发现 {} 条离线消息。正在发送...",
+            "[user {}] Found {} offline messages in Redis. Sending...",
             user_uuid,
             messages.len()
         );
 
-        // 3. 倒序发送消息，以保持原始顺序
-        // 因为 LPUSH 是 "Left Push"，所以最新的消息在列表的最左边（索引0）。
-        // 我们从后往前遍历，就能按时间顺序（旧 -> 新）发送。
+        // 3. Send in reverse to keep the original order
+        // LPUSH pushes to the left, so the newest message sits at index 0.
+        // Walking from the back sends them oldest to newest.
         for msg in messages.iter().rev() {
             if tx.send(msg.clone()).await.is_err() {
-                // 如果在发送离线消息时客户端就断开了，我们就不再继续发送，
-                // 也不删除 Redis 中的消息，等待用户下次上线。
+                // If the client disconnects mid-way we stop sending
+                // and keep the messages in Redis until the next connection.
                 tracing::error!(
-                    "[用户 {}] 客户端在发送离线消息时断开连接。正在中止。",
+                    "[user {}] Client disconnected while sending offline messages. Aborting.",
                     user_uuid.clone()
                 );
-                return; // 退出任务
+                return; // exit the task
             }
         }
 
-        // 4. 所有消息都成功发送后，删除 Redis 中的键
+        // 4. Everything sent, delete the Redis key
         tracing::debug!(
-            "[用户 {}] 所有离线消息已发送。正在删除 Redis 键“{}”。",
+            "[user {}] All offline messages sent. Deleting Redis key '{}'.",
             user_uuid,
             key
         );
 
         let _: () = conn.del(&key).await.unwrap_or_else(|e| {
             tracing::error!(
-                "[用户 {}] 无法删除 Redis 键“{}”：{} . 可能会导致重复。",
+                "[user {}] Cannot delete Redis key '{}': {}. Messages may be sent twice.",
                 user_uuid,
                 key,
                 e
@@ -115,29 +115,29 @@ impl SSEService {
     }
 
     pub async fn global_message(&self, current_user: AuthUser) -> impl Stream<Item = String> + use<> {
-        // 创建一个新的 MPSC 通道，用于此用户的 SSE 事件
+        // New MPSC channel for this user's SSE events
         let user_uuid = current_user.sub;
-        let (tx, rx) = mpsc::channel(100); // 缓冲区大小为100
+        let (tx, rx) = mpsc::channel(100); // buffer of 100
         let state_clone = self.app_state.clone();
         let tx_clone = tx.clone();
 
-        // -----------------发送离线消息开始 -----------------
+        // ----------------- send offline messages: start -----------------
         tokio::spawn(Self::send_offline_messages(
             state_clone,
             user_uuid.clone(),
             tx_clone,
         ));
 
-        // -----------------发送离线消息结束 -----------------
+        // ----------------- send offline messages: end -----------------
 
-        // 将发送端 (tx) 存储到共享状态中，与 user_id 关联
-        // 需要一个 `lock` 来安全地修改 HashMap
+        // Store the sender (tx) in the shared state, keyed by user_id
+        // The HashMap needs a lock to be modified safely
         self.app_state
             .sse_senders
             .lock()
             .await
             .insert(user_uuid.clone(), tx.clone());
-        tracing::debug!("为用户 {} 建立了 SSE 连接", user_uuid.clone());
+        tracing::debug!("SSE connection established for user {}", user_uuid.clone());
 
         let cleanup_guard = SseStreamCleanup {
             user_uuid,
@@ -145,10 +145,10 @@ impl SSEService {
         };
 
         ReceiverStream::new(rx)
-            //  使用 `map` 或者 `inspect` 来确保 cleanup_guard 的生命周期和流绑定
+            // Use `map` or `inspect` to tie cleanup_guard's lifetime to the stream
             .map(move |res| {
-                // 这个闭包借用了 cleanup_guard，只要流还存活，它就存活
-                // 当流被 drop 时，这个闭包和它捕获的 cleanup_guard 会一起被 drop
+                // The closure borrows cleanup_guard and keeps it alive as long as the stream is
+                // When the stream is dropped, the closure and its cleanup_guard go with it
                 let _ = &cleanup_guard;
                 res
             })

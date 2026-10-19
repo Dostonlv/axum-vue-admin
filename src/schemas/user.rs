@@ -1,4 +1,4 @@
-use chrono::{NaiveDateTime, Utc};
+use chrono::NaiveDateTime;
 use sea_orm::FromQueryResult;
 use serde::{Deserialize, Serialize};
 use utoipa::{IntoParams, ToSchema};
@@ -6,7 +6,7 @@ use validator::Validate;
 
 use crate::entity::users::Model as UserModel;
 
-// 定义个userid的别名类型，万一后面切换为uuid呢...
+// Alias for the user id type, in case we switch to uuid later
 pub type UserUUID = String;
 
 fn default_page() -> u64 {
@@ -121,15 +121,15 @@ pub struct UserDeptResponse {
     name: String,
 }
 
-// 用户角色信息结构
+// User role info
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UserRoleInfo {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub uuid: Option<String>,
     pub role_name: String,
-    pub source: String, // "direct" 或 "group"
+    pub source: String, // "direct" or "group"
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub group_name: Option<String>, // 如果来源是组，则包含组名
+    pub group_name: Option<String>, // set when the source is a group
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

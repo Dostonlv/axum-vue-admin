@@ -28,7 +28,7 @@ impl<T: Serialize> ApiResponse<T> {
     }
 }
 
-// 为 ApiResponse 实现 IntoResponse
+// IntoResponse for ApiResponse
 impl<T: Serialize> IntoResponse for ApiResponse<T> {
     fn into_response(self) -> axum::response::Response {
         (StatusCode::from_u16(self.code).unwrap(), Json(self)).into_response()

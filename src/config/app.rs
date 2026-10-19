@@ -1,9 +1,9 @@
-// 应用配置
+// App config
 
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 
-// --- 用于Redis的常量 ---
+// --- Redis constants ---
 pub const REDIS_PUB_SUB_CHANNEL: &str = "policy_updates";
 pub const BLACK_LIST_JTI: &str = "blacklist:jti";
 

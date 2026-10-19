@@ -12,11 +12,14 @@ import QueryBarItem from '@/components/query-bar/QueryBarItem.vue';
 import CrudModal from '@/components/table/CrudModal.vue';
 import CrudTable from '@/components/table/CrudTable.vue';
 import TheIcon from '@/components/icon/TheIcon.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n({ useScope: 'global' });
 
 const $message = window.$message;
 const $dialog = window.$dialog;
 
-defineOptions({name: '策略管理'});
+defineOptions({name: 'PolicyManagement'});
 
 
 const store = usePolicyStore();
@@ -27,7 +30,7 @@ const vPermission = resolveDirective('permission');
 
 const showModal = ref(false);
 const modalType = ref('create');
-const modalTitle = computed(() => (modalType.value === 'create' ? '新建策略' : '编辑策略'));
+const modalTitle = computed(() => (modalType.value === 'create' ? t('views.system.policy.new') : t('views.system.policy.edit')));
 const currentItem = ref({});
 const isSubmitting = ref(false);
 
@@ -37,10 +40,10 @@ const queryParams = reactive({});
 onMounted(() => {
   setTimeout(() => {
     $dialog.warning({
-      title: '注意!!!',
-      content: '请慎重操作,错误的修改可能会导致权限失效！',
-      positiveText: '我明白',
-      negativeText: '不改了',
+      title: t('views.system.cedar.warn_title'),
+      content: t('views.system.cedar.warn_content'),
+      positiveText: t('views.system.cedar.warn_ok'),
+      negativeText: t('views.system.cedar.warn_cancel'),
       maskClosable: false,
       closable: false,
       onNegativeClick: () => router.push('/'),
@@ -52,7 +55,7 @@ onMounted(() => {
 
 const loadData = (page, pageSize) => {
   store.fetchPolicies({...queryParams, page, pageSize})
-      .catch(error => $message.error(`加载策略失败: ${error.message}`));
+      .catch(error => $message.error(`${t('views.system.policy.load_failed')}: ${error.message}`));
 };
 
 const handlePageChange = (page) => loadData(page, pagination.value.pageSize);
@@ -65,7 +68,7 @@ const handleResetSearch = () => {
   handleSearch()
 }
 
-// CRUD 处理器
+// CRUD handlers
 const handleAdd = () => {
   currentItem.value = {is_active: true};
   modalType.value = 'create';
@@ -84,14 +87,14 @@ const handleSave = async () => {
   try {
     if (modalType.value === 'create') {
       await store.createPolicy(currentItem.value);
-      $message.success('创建成功');
+      $message.success(t('common.messages.create_success'));
     } else {
       await store.updatePolicy(currentItem.value.id, currentItem.value);
-      $message.success('更新成功');
+      $message.success(t('common.messages.update_success'));
     }
     showModal.value = false;
   } catch (error) {
-    $message.error(`保存失败: ${error.message}`);
+    $message.error(`${t('common.messages.save_failed')}: ${error.message}`);
   } finally {
     isSubmitting.value = false;
   }
@@ -100,47 +103,47 @@ const handleSave = async () => {
 const handleDelete = async (row) => {
   try {
     await store.deletePolicy(row.id);
-    $message.success('删除成功');
+    $message.success(t('common.messages.delete_success'));
   } catch (error) {
-    $message.error(`删除失败: ${error.message}`);
+    $message.error(`${t('common.messages.delete_failed')}: ${error.message}`);
   }
 };
 
-// 特殊操作处理器
+// Special actions
 const handleSyncPolicies = async () => {
   try {
     await store.syncPolicies();
-    $message.success('同步成功，策略已生效');
+    $message.success(t('views.system.policy.sync_success'));
   } catch (error) {
-    $message.error(`同步失败: ${error.message}`);
+    $message.error(`${t('views.system.policy.sync_failed')}: ${error.message}`);
   }
 };
 
 
 const columns = [
   {
-    title: '注释',
+    title: t('views.system.policy.annotation'),
     key: 'annotation',
     width: 450,
     align: 'center',
     ellipsis: {tooltip: true},
   },
   {
-    title: '效果',
+    title: t('views.system.policy.effect'),
     key: 'effect',
     width: 80,
     align: 'center',
     ellipsis: {tooltip: true},
   },
   {
-    title: '类型',
+    title: t('views.system.policy.type'),
     key: 'policy_type',
     width: 80,
     align: 'center',
     ellipsis: {tooltip: true},
   },
   {
-    title: '状态',
+    title: t('common.fields.status'),
     key: 'is_active',
     width: 100,
     align: 'center',
@@ -148,19 +151,19 @@ const columns = [
       return h(NSwitch,
           {defaultValue: row.is_active === 1, disabled: true},
           {
-            checked: () => '启用',
-            unchecked: () => '禁用'
+            checked: () => t('common.status.enabled'),
+            unchecked: () => t('common.status.disabled')
           })
     },
   },
   {
-    title: '描述',
+    title: t('common.fields.description'),
     key: 'description',
     width: 150,
     align: 'center',
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     width: 350,
     align: 'center',
@@ -175,7 +178,7 @@ const columns = [
                   onClick: () => handleEdit(row)
                 },
                 {
-                  default: () => '编辑',
+                  default: () => t('common.buttons.edit'),
                   icon: renderIcon('material-symbols:edit-outline', {size: 16}),
                 }
             ),
@@ -192,13 +195,13 @@ const columns = [
                         style: 'margin-right: 8px;',
                       },
                       {
-                        default: () => '删除',
+                        default: () => t('common.buttons.delete'),
                         icon: renderIcon('material-symbols:delete-outline', {size: 16}),
                       }
                   ),
                       [[vPermission, 'button:policy_delete']]
                   ),
-                  default: () => h('div', {}, '确定删除该权限吗?')
+                  default: () => h('div', {}, t('views.system.policy.confirm_delete'))
                 }
             ),
       ];
@@ -219,16 +222,16 @@ const policyTypeOptions = [
 </script>
 
 <template>
-  <CommonPage show-footer title="访问策略列表">
+  <CommonPage show-footer :title="t('views.system.policy.list')">
     <template #action>
       <NFlex>
         <NButton v-permission="'button:policy_create'" type="primary" @click="handleSyncPolicies" :loading="isSyncing">
           <TheIcon icon="material-symbols:sync" :size="18" class="mr-5"/>
-          立即生效
+          {{ t('views.system.policy.apply_now') }}
         </NButton>
         <NButton v-permission="'button:policy_create'" type="primary" @click="handleAdd">
           <TheIcon icon="material-symbols:add" :size="18" class="mr-5"/>
-          新建策略
+          {{ t('views.system.policy.new') }}
         </NButton>
       </NFlex>
     </template>
@@ -246,7 +249,7 @@ const policyTypeOptions = [
       <template #queryBar>
         <NFlex>
           <NFlex>
-            <QueryBarItem label="注释" :label-width="50">
+            <QueryBarItem :label="t('views.system.policy.annotation')" :label-width="50">
               <NInput
                   v-model:value="queryParams.name"
                   clearable
@@ -254,19 +257,19 @@ const policyTypeOptions = [
                   @keypress.enter="handleSearch()"
               />
             </QueryBarItem>
-            <QueryBarItem label="效果" :label-width="50">
+            <QueryBarItem :label="t('views.system.policy.effect')" :label-width="50">
               <NSelect
                   min-w-sm
                   v-model:value="queryParams.effect"
-                  :options="[{label: '允许', value: 'permit'}, {label: '禁止', value: 'forbid'}]"
+                  :options="[{label: t('views.system.policy.permit'), value: 'permit'}, {label: t('views.system.policy.forbid'), value: 'forbid'}]"
                   clearable
               />
             </QueryBarItem>
-            <QueryBarItem label="状态" :label-width="50">
+            <QueryBarItem :label="t('common.fields.status')" :label-width="50">
               <NSelect
                   min-w-sm
                   v-model:value="queryParams.is_active"
-                  :options="[{label: '已启用', value: 1}, {label: '未启用', value: 0}]"
+                  :options="[{label: t('common.status.is_enabled'), value: 1}, {label: t('common.status.not_enabled'), value: 0}]"
                   clearable
               />
             </QueryBarItem>
@@ -288,31 +291,31 @@ const policyTypeOptions = [
           :model="currentItem"
           :disabled="modalType === 'view'"
       >
-        <NFormItem label="策略内容" path="policy_text" required>
+        <NFormItem :label="t('views.system.policy.text')" path="policy_text" required>
           <NInput
               type="textarea"
               v-model:value="currentItem.policy_text"
           />
         </NFormItem>
-        <NFormItem label="策略类型" path="policy_type" required>
+        <NFormItem :label="t('views.system.policy.policy_type')" path="policy_type" required>
           <NSelect
               :options="policyTypeOptions"
               v-model:value="currentItem.policy_type"
           />
         </NFormItem>
-        <NFormItem label="描述" path="description" required>
+        <NFormItem :label="t('common.fields.description')" path="description" required>
           <NInput
               v-model:value="currentItem.description"
           />
         </NFormItem>
-        <NFormItem label="状态" path="is_active">
+        <NFormItem :label="t('common.fields.status')" path="is_active">
           <NSwitch :value="currentItem.is_active"
                    :default-value="true">
             <template #checked>
-              启用
+              {{ t('common.status.enabled') }}
             </template>
             <template #unchecked>
-              禁用
+              {{ t('common.status.disabled') }}
             </template>
           </NSwitch>
         </NFormItem>

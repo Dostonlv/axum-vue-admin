@@ -9,10 +9,13 @@ import QueryBarItem from '@/components/query-bar/QueryBarItem.vue';
 import CrudModal from '@/components/table/CrudModal.vue';
 import CrudTable from '@/components/table/CrudTable.vue';
 import TheIcon from '@/components/icon/TheIcon.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n({ useScope: 'global' });
 
 const $message = window.$message;
 
-defineOptions({name: '部门管理'});
+defineOptions({name: 'DeptManagement'});
 
 
 const store = useDepartmentStore();
@@ -22,17 +25,17 @@ const vPermission = resolveDirective('permission');
 
 const showModal = ref(false);
 const modalType = ref('create');
-const modalTitle = computed(() => modalType.value === 'create' ? '新建部门' : '编辑部门');
-const currentItem = ref({}); // 表单数据
+const modalTitle = computed(() => modalType.value === 'create' ? t('views.system.dept.new') : t('views.system.dept.edit'));
+const currentItem = ref({}); // form data
 const isSubmitting = ref(false);
-const isParentDeptDisabled = ref(false); // 控制父级部门选择器是否禁用
+const isParentDeptDisabled = ref(false); // disables the parent department picker
 
 const queryParams = reactive({});
 
 
 const loadData = () => {
   store.fetchDepartments(queryParams)
-      .catch(error => $message.error(`加载部门失败: ${error.message}`));
+      .catch(error => $message.error(`${t('views.system.dept.load_failed')}: ${error.message}`));
 };
 
 onMounted(() => {
@@ -69,14 +72,14 @@ const handleSave = async () => {
   try {
     if (modalType.value === 'create') {
       await store.createDepartment(currentItem.value);
-      $message.success('创建成功');
+      $message.success(t('common.messages.create_success'));
     } else {
       await store.updateDepartment(currentItem.value.uuid, currentItem.value);
-      $message.success('更新成功');
+      $message.success(t('common.messages.update_success'));
     }
     showModal.value = false;
   } catch (error) {
-    $message.error(`保存失败: ${error.message}`);
+    $message.error(`${t('common.messages.save_failed')}: ${error.message}`);
   } finally {
     isSubmitting.value = false;
   }
@@ -92,29 +95,29 @@ const handleDelete = async (row) => {
 
 
 const deptRules = {
-  name: [{required: true, message: '请输入部门名称', trigger: ['input', 'blur']}],
+  name: [{required: true, message: t('views.system.dept.enter_name'), trigger: ['input', 'blur']}],
 };
 
 const columns = [
   {
-    title: '部门名称',
+    title: t('views.system.dept.name'),
     key: 'name',
     align: 'center',
   },
   {
-    title: '备注',
+    title: t('common.fields.remark'),
     key: 'desc',
     align: 'center',
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     align: 'center',
     render(row) {
       return [
         withDirectives(
             h(NButton, {size: 'small', type: 'primary', style: 'margin-left: 8px;', onClick: () => handleEdit(row)},
-                {default: () => '编辑', icon: renderIcon('material-symbols:edit', {size: 16})}
+                {default: () => t('common.buttons.edit'), icon: renderIcon('material-symbols:edit', {size: 16})}
             ),
             [[vPermission, 'button:dept_update']]
         ),
@@ -129,11 +132,11 @@ const columns = [
                         style: 'margin-left: 8px;',
                       },
                       {
-                        default: () => '删除',
+                        default: () => t('common.buttons.delete'),
                         icon: renderIcon('material-symbols:delete-outline', {size: 16}),
                       }
                   ),
-                  default: () => '确定删除该部门吗?',
+                  default: () => t('views.system.dept.confirm_delete'),
                 }
             ),
             [[vPermission, 'button:dept_delete']]
@@ -146,11 +149,11 @@ const columns = [
 </script>
 
 <template>
-  <CommonPage show-footer title="部门列表">
+  <CommonPage show-footer :title="t('views.system.dept.list')">
     <template #action>
       <NButton v-permission="'button:dept_create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5"/>
-        新建部门
+        {{ t('views.system.dept.new') }}
       </NButton>
     </template>
 
@@ -164,7 +167,7 @@ const columns = [
         @reset="handleResetSearch"
     >
       <template #queryBar>
-        <QueryBarItem label="部门名称" :label-width="80">
+        <QueryBarItem :label="t('views.system.dept.name')" :label-width="80">
           <NInput v-model:value="queryParams.name" @keypress.enter="handleSearch"/>
         </QueryBarItem>
       </template>
@@ -177,25 +180,25 @@ const columns = [
         @save="handleSave"
     >
       <NForm :model="currentItem" :rules="deptRules" label-placement="left" label-width="auto">
-        <NFormItem label="父级部门" path="parent_id" required>
+        <NFormItem :label="t('views.system.dept.parent')" path="parent_id" required>
           <NTreeSelect
               v-model:value="currentItem.parent_uuid"
               :options="departmentOptions"
               key-field="id"
               label-field="name"
-              placeholder="请选择父级部门"
+              :placeholder="t('views.system.dept.select_parent')"
               clearable
               default-expand-all
               :disabled="isParentDeptDisabled"
           />
         </NFormItem>
-        <NFormItem label="部门名称" path="name">
+        <NFormItem :label="t('views.system.dept.name')" path="name">
           <NInput v-model:value="currentItem.name"/>
         </NFormItem>
-        <NFormItem label="备注" path="desc">
+        <NFormItem :label="t('common.fields.remark')" path="desc">
           <NInput v-model:value="currentItem.desc"/>
         </NFormItem>
-        <NFormItem label="排序" path="order">
+        <NFormItem :label="t('common.fields.order')" path="order">
           <NInputNumber v-model:value="currentItem.order" min="0"/>
         </NFormItem>
       </NForm>

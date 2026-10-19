@@ -4,7 +4,7 @@ use crate::entity::{cedar_policy_set, cedar_schema, template_links};
 use crate::errors::app_error::AppError;
 use cedar_policy::{Policy, PolicyId, PolicySet, Schema, Template};
 use futures_util::StreamExt as _;
-use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter, QuerySelect};
+use sea_orm::{ColumnTrait, DatabaseConnection, EntityTrait, QueryFilter};
 use std::str::FromStr;
 use std::sync::Arc;
 use crate::schemas::cedar_policy::TemplateLinkRecord;
@@ -35,27 +35,27 @@ pub fn default_number_1() -> i8 {
     1
 }
 
-// 后台任务：监听Redis Pub/Sub的策略更新通知
+// Background task: listen for policy update notifications on Redis Pub/Sub
 pub async fn subscribe_to_policy_updates(state: AppState) {
     let mut consecutive_failures = 0;
 
     loop {
-        info!("尝试订阅Redis频道 '{}'...", REDIS_PUB_SUB_CHANNEL);
+        info!("Subscribing to Redis channel '{}'...", REDIS_PUB_SUB_CHANNEL);
 
         match establish_subscription(&state).await {
             Ok(()) => {
                 consecutive_failures = 0;
-                info!("Redis订阅会话结束，准备重新连接...");
+                info!("Redis subscription ended, reconnecting...");
             }
             Err(e) => {
                 consecutive_failures += 1;
                 error!(
-                    "Redis订阅失败 (尝试 {}/{}): {}",
+                    "Redis subscription failed (attempt {}/{}): {}",
                     consecutive_failures, MAX_RETRY_ATTEMPTS, e
                 );
 
                 if consecutive_failures >= MAX_RETRY_ATTEMPTS {
-                    error!("连续失败次数过多，延长重试间隔");
+                    error!("Too many consecutive failures, backing off");
                     sleep(CONNECTION_RETRY_DELAY * consecutive_failures).await;
                 } else {
                     sleep(CONNECTION_RETRY_DELAY).await;
@@ -70,40 +70,40 @@ async fn establish_subscription(state: &AppState) -> Result<(), AppError> {
 
     let (mut sink, mut stream) = pub_sub.split();
 
-    // 订阅频道
+    // Subscribe to the channel
     sink.subscribe(REDIS_PUB_SUB_CHANNEL).await?;
 
-    info!("成功订阅Redis频道，等待通知...");
+    info!("Subscribed to Redis channel, waiting for notifications...");
 
-    // 处理消息循环
+    // Message loop
     while let Some(msg) = stream.next().await {
         let payload: String = match msg.get_payload() {
             Ok(p) => p,
             Err(e) => {
-                warn!("无法从Redis消息中获取payload: {}，跳过此次更新。", e);
-                continue; // 跳过当前消息，处理下一条
+                warn!("Cannot read payload from Redis message: {}, skipping this update.", e);
+                continue; // skip this one, move on to the next
             }
         };
 
         if payload.is_empty() {
-            warn!("收到的payload为空，跳过此次更新。");
+            warn!("Empty payload, skipping this update.");
             continue;
         }
 
-        info!("收到策略更新通知: '{}'，开始重新加载...", payload);
+        info!("Policy update notification: '{}', reloading...", payload);
 
         if let Err(e) = reload_policies_and_schema(state).await {
-            error!("重新加载策略失败: {}", e);
-            // 继续监听，不因单次加载失败而中断
+            error!("Failed to reload policies: {}", e);
+            // Keep listening; one failed reload shouldn't stop us
         }
     }
 
-    warn!("Redis消息流结束");
+    warn!("Redis message stream ended");
     Ok(())
 }
 
 pub async fn reload_policies_and_schema(state: &AppState) -> Result<(), AppError> {
-    info!("从数据库重新加载所有 Cedar 策略、模板、链接和模式...");
+    info!("Reloading all Cedar policies, templates, links and schema from the database...");
 
     let (policies_result, schema_result, links_result) = tokio::join!(
         load_active_policies_and_templates(state.db.clone()),
@@ -130,20 +130,20 @@ pub async fn reload_policies_and_schema(state: &AppState) -> Result<(), AppError
 }
 
 pub async fn load_active_schema(db: Arc<DatabaseConnection>) -> Result<Schema, AppError> {
-    info!("从数据库加载启用的 Cedar schema.............");
+    info!("Loading the active Cedar schema from the database...");
     let active_schema_model = cedar_schema::Entity::find().one(db.as_ref()).await?;
 
     match active_schema_model {
         Some(model) => {
-            info!("找到schema (ID: {}). 解析中...", model.schema_id);
+            info!("Found schema (ID: {}). Parsing...", model.schema_id);
             let (schema, warning) = Schema::from_cedarschema_str(model.schema.as_str())?;
             warning.for_each(|w| {
-                warn!("警告: {}", w);
+                warn!("Warning: {}", w);
             });
             Ok(schema)
         }
         None => {
-            warn!("警告: 未找到有效的schema！从空Schema 开始");
+            warn!("No active schema found, starting with an empty one");
             return Ok(Schema::from_json_value(serde_json::json!({}))?);
             // Err(AppError::SchemaError("CRITICAL: No active schema found in the database!".to_string()))
         }
@@ -153,18 +153,18 @@ pub async fn load_active_schema(db: Arc<DatabaseConnection>) -> Result<Schema, A
 pub async fn load_active_policies_and_templates(
     db: Arc<DatabaseConnection>,
 ) -> Result<PolicySet, AppError> {
-    info!("从数据库加载活动的 Cedar 策略和模板...");
+    info!("Loading active Cedar policies and templates from the database...");
     let active_policy_models = cedar_policy_set::Entity::find()
         .filter(cedar_policy_set::Column::IsActive.eq(true))
         .all(db.as_ref())
         .await?;
 
     if active_policy_models.is_empty() {
-        warn!("未找到有效的策略或模板。从空的策略集开始。");
+        warn!("No active policies or templates found, starting with an empty set.");
         return Ok(PolicySet::new());
     }
     info!(
-        "已成功重新加载并缓存 {} 个策略/模板",
+        "Reloaded and cached {} policies/templates",
         active_policy_models.len()
     );
     let mut policy_set = PolicySet::new();
@@ -185,7 +185,7 @@ pub async fn load_active_policies_and_templates(
 pub async fn load_all_template_links(
     db: Arc<DatabaseConnection>,
 ) -> Result<Vec<TemplateLinkRecord>, AppError> {
-    info!("从数据库加载所有模板链接...");
+    info!("Loading all template links from the database...");
     let link_models = template_links::Entity::find().all(db.as_ref()).await?;
 
     let link_records = link_models
@@ -199,6 +199,6 @@ pub async fn load_all_template_links(
             })
         })
         .collect::<Result<Vec<TemplateLinkRecord>, AppError>>()?;
-    info!("已成功重新加载并缓存 {} 个模板链接", link_records.len());
+    info!("Reloaded and cached {} template links", link_records.len());
     Ok(link_records)
 }

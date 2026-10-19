@@ -28,7 +28,7 @@ pub async fn handle_audit_log_middleware(
         "0".to_string()
     };
 
-    // 使用状态中的数据库连接
+    // Use the DB connection from the app state
     let audit_log = AuditLogService::new(state.clone());
 
     tokio::spawn(async move {

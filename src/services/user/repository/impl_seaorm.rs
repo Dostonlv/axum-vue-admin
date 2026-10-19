@@ -61,12 +61,12 @@ impl UserService {
 
         let db = self.app_state.db.as_ref();
 
-        // 如果 fields 参数为空，默认返回所有核心字段。
+        // If `fields` is empty, return all core fields.
         let requested_fields: HashSet<String> = params
             .fields
             .map(|f| f.split(',').map(|s| s.trim().to_string()).collect())
             .unwrap_or_else(|| {
-                // 定义默认返回的字段
+                // Default fields
                 [
                     "user_uuid",
                     "username",
@@ -86,7 +86,7 @@ impl UserService {
 
         let mut query = users::Entity::find();
 
-        // 应用其他过滤条件
+        // Apply the remaining filters
         if let Some(username) = params.username {
             query = query.filter(users::Column::Username.contains(username));
         }
@@ -105,7 +105,7 @@ impl UserService {
             query = query.filter(users::Column::DeptId.eq(dept_id));
         }
 
-        // 根据请求的字段动态选择列
+        // Pick columns based on the requested fields
         let mut select_query = query.select_only();
         let mut needs_dept_join = false;
 
@@ -129,24 +129,24 @@ impl UserService {
                         .column_as(departments::Column::DeptUuid, "dept_uuid")
                         .column_as(departments::Column::Name, "dept_name")
                 }
-                "groups" => select_query, // groups 需要单独查询，这里先忽略
-                _ => select_query,        // 忽略不认识的字段
+                "groups" => select_query, // groups are queried separately, ignore here
+                _ => select_query,        // ignore unknown fields
             };
         }
 
-        // 如果需要部门信息，才添加 JOIN
+        // Only JOIN departments when needed
         if needs_dept_join {
             select_query =
                 select_query.join(JoinType::LeftJoin, users::Relation::Departments.def());
         }
         select_query = select_query.order_by_desc(users::Column::LastLogin);
-        // 执行分页查询，并将结果转换为 JSON
+        // Run the paginated query and convert the rows to JSON
         let paginator = select_query.into_json().paginate(db, params.page_size);
         let total = paginator.num_items().await?;
         let page_index = if params.page > 0 { params.page - 1 } else { 0 };
         let mut users_json: Vec<JsonValue> = paginator.fetch_page(page_index).await?;
 
-        // 按需获取关联的 `groups` 数据
+        // Fetch the related `groups` on demand
         let mut user_groups_map: HashMap<String, JsonValue> = HashMap::new();
 
         if requested_fields.contains("groups") && !users_json.is_empty() {
@@ -190,20 +190,20 @@ impl UserService {
                             }));
                     }
                 }
-                // 将 Vec<JsonValue> 转换为单个 JsonValue::Array
+                // Turn Vec<JsonValue> into a single JsonValue::Array
                 for (uuid, groups) in grouped_by_uuid {
                     user_groups_map.insert(uuid, JsonValue::Array(groups));
                 }
             }
         }
 
-        // 遍历查询结果，构建 dept 对象，并合并 groups 信息
+        // Walk the rows, build the dept object and merge in the groups
         for user_val in users_json.iter_mut() {
             if let Some(user_obj) = user_val.as_object_mut() {
                 if !requested_fields.contains("user_id") {
                     user_obj.remove("user_id");
                 }
-                // 组装 dept 对象
+                // Build the dept object
                 if needs_dept_join {
                     let dept_uuid = user_obj.remove("dept_uuid");
                     let dept_name = user_obj.remove("dept_name");
@@ -217,7 +217,7 @@ impl UserService {
                     user_obj.insert("dept".to_string(), dept_json);
                 }
 
-                // 合并 groups 信息
+                // Merge the groups
                 if requested_fields.contains("groups") {
                     let user_uuid = user_obj
                         .get("uuid")
@@ -230,7 +230,7 @@ impl UserService {
                     }
                 }
 
-                // 坑爹的MYSQL, BOOL要单独处理
+                // MySQL quirk: bools need separate handling
                 if requested_fields.contains("is_active") {
                     if let Some(is_active_val) = user_obj.get_mut("is_active") {
                         if let Some(num) = is_active_val.as_i64() {
@@ -267,7 +267,7 @@ impl UserService {
             )
             .await?;
 
-        // 查询用户及其部门信息
+        // Query the user and their department
         let user_with_dept = users::Entity::find()
             .filter(users::Column::UserUuid.eq(user_uuid))
             .find_also_related(departments::Entity)
@@ -275,7 +275,7 @@ impl UserService {
             .await?;
 
         if let Some((user, dept)) = user_with_dept {
-            // 查询该用户的所有用户组
+            // Query all groups of the user
             let user_groups = user_groups::Entity::find()
                 .join(InnerJoin, user_groups::Relation::UserGroupMembers.def())
                 .filter(user_group_members::Column::UserId.eq(user.user_id))
@@ -602,7 +602,7 @@ impl UserService {
             )
             .await?;
 
-        // 用户不删除 只是禁用
+        // Users are not deleted, only disabled
         users::Entity::update_many()
             .filter(users::Column::UserUuid.eq(user_uuid))
             .set(users::ActiveModel {
@@ -642,7 +642,7 @@ impl UserService {
             .await?
             .ok_or(not_found!("User not found"))?;
 
-        // 获取直接角色
+        // Direct roles
         let direct_roles = self.get_user_direct_roles(user_id).await?;
         for direct_role in direct_roles {
             all_roles.push(UserRoleInfo {
@@ -653,7 +653,7 @@ impl UserService {
             });
         }
 
-        // 获取组角色
+        // Roles via groups
         let group_roles = self.get_user_group_roles(user_id).await?;
         for group_role in group_roles {
             all_roles.push(UserRoleInfo {
@@ -667,7 +667,7 @@ impl UserService {
         Ok(all_roles)
     }
 
-    // 获取用户直接分配的角色
+    // Roles assigned to the user directly
     async fn get_user_direct_roles(&self, user_id: i32) -> Result<Vec<DirectRole>, AppError> {
         let roles = roles::Entity::find()
             .select_only()
@@ -688,7 +688,7 @@ impl UserService {
         Ok(roles)
     }
 
-    // 获取用户通过组获得的角色（包含组信息）
+    // Roles the user gets through groups (with group info)
     async fn get_user_group_roles(&self, user_id: i32) -> Result<Vec<GroupRole>, AppError> {
         let roles = roles::Entity::find()
             .select_only()
@@ -753,10 +753,10 @@ impl UserService {
                 .auth_service
                 .check_permission_with_entities(
                     &current_user.sub,
-                    context.clone(), // <--- 关键点：克隆 Context
+                    context.clone(), // <--- note: clone the Context
                     AuthAction::AssignRole,
                     ResourceType::Role(Some(role_uuid.to_string())),
-                    merged_es.clone(), // <--- 关键点：克隆 Entities
+                    merged_es.clone(), // <--- note: clone the Entities
                 )
                 .await?;
 

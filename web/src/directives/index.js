@@ -1,6 +1,6 @@
 import setupPermissionDirective from './permission'
 
-/** setup custom vue directives. - [安装自定义的vue指令] */
+/** setup custom vue directives. - [install custom vue directives] */
 export function setupDirectives(app) {
   setupPermissionDirective(app)
 }

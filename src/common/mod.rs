@@ -1,4 +1,4 @@
-// 工具模块入口
+// Utility module entry
 
 pub mod crypto;
 pub mod date;

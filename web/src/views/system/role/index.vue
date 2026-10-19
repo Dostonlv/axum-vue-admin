@@ -17,10 +17,13 @@ import QueryBarItem from '@/components/query-bar/QueryBarItem.vue'
 import CrudModal from '@/components/table/CrudModal.vue'
 import CrudTable from '@/components/table/CrudTable.vue'
 import TheIcon from '@/components/icon/TheIcon.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n({ useScope: 'global' })
 
 const $message = window.$message
 
-defineOptions({name: '角色管理'})
+defineOptions({name: 'RoleManagement'})
 
 // =============================
 const roleStore = useRoleStore()
@@ -29,11 +32,11 @@ const vPermission = resolveDirective('permission')
 
 const showModal = ref(false)
 const modalType = ref('create') // 'create' | 'edit'
-const modalTitle = computed(() => (modalType.value === 'create' ? '新建角色' : '编辑角色'))
-const currentItem = ref({}) // 用于表单 v-model 绑定
+const modalTitle = computed(() => (modalType.value === 'create' ? t('views.system.role.new') : t('views.system.role.edit')))
+const currentItem = ref({}) // bound to the form via v-model
 const isSubmitting = ref(false)
 
-// 搜索参数
+// Search params
 const queryParams = reactive({})
 
 
@@ -44,7 +47,7 @@ const loadData = () => {
     pageSize: pagination.value.pageSize,
   })
       .catch(error => {
-        $message.error(`加载角色失败: ${error.message}`)
+        $message.error(`${t('views.system.role.load_failed')}: ${error.message}`)
       })
 }
 
@@ -72,7 +75,7 @@ const handlePageSizeChange = (pageSize) => {
   loadData(1, pageSize);
 }
 
-// CRUD 操作
+// CRUD
 const handleAdd = () => {
   currentItem.value = {}
   modalType.value = 'create'
@@ -90,14 +93,14 @@ const handleSave = async () => {
   try {
     if (modalType.value === 'create') {
       await roleStore.createRole(currentItem.value)
-      $message.success('创建成功')
+      $message.success(t('common.messages.create_success'))
     } else {
       await roleStore.updateRole(currentItem.value.uuid, currentItem.value)
-      $message.success('更新成功')
+      $message.success(t('common.messages.update_success'))
     }
     showModal.value = false
   } catch (error) {
-    $message.error(`保存失败: ${error.message}`)
+    $message.error(`${t('common.messages.save_failed')}: ${error.message}`)
   } finally {
     isSubmitting.value = false
   }
@@ -106,15 +109,15 @@ const handleSave = async () => {
 const handleDelete = async (row) => {
   try {
     await roleStore.deleteRole(row.uuid)
-    $message.success('删除成功')
+    $message.success(t('common.messages.delete_success'))
   } catch (error) {
-    $message.error(`删除失败: ${error.message}`)
+    $message.error(`${t('common.messages.delete_failed')}: ${error.message}`)
   }
 }
 
 const columns = [
   {
-    title: '角色名',
+    title: t('views.system.role.name'),
     key: 'name',
     width: 80,
     align: 'center',
@@ -122,20 +125,20 @@ const columns = [
     render: (row) => h(NTag, {type: 'info'}, {default: () => row.name}),
   },
   {
-    title: '角色描述',
+    title: t('views.system.role.description'),
     key: 'description',
     width: 80,
     align: 'center',
   },
   {
-    title: '创建日期',
+    title: t('common.fields.created_date'),
     key: 'created_at',
     width: 60,
     align: 'center',
     render: (row) => h('span', formatDate(row.created_at)),
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     width: 180,
     align: 'center',
@@ -149,7 +152,7 @@ const columns = [
                   style: 'margin-right: 8px;',
                   onClick: () => handleEdit(row),
                 },
-                {default: () => '编辑', icon: renderIcon('material-symbols:edit-outline', {size: 16})}),
+                {default: () => t('common.buttons.edit'), icon: renderIcon('material-symbols:edit-outline', {size: 16})}),
             [[vPermission, 'button:role_update']]
         ),
         h(NPopconfirm,
@@ -160,10 +163,10 @@ const columns = [
                         size: 'small',
                         type: 'error',
                       },
-                      {default: () => '删除', icon: renderIcon('material-symbols:delete-outline', {size: 16})}),
+                      {default: () => t('common.buttons.delete'), icon: renderIcon('material-symbols:delete-outline', {size: 16})}),
                   [[vPermission, 'button:role_delete']]
               ),
-              default: () => '确定删除该角色吗?',
+              default: () => t('views.system.role.confirm_delete'),
             }),
       ]
     },
@@ -172,15 +175,15 @@ const columns = [
 </script>
 
 <template>
-  <CommonPage show-footer title="角色列表">
+  <CommonPage show-footer :title="t('views.system.role.list')">
     <template #action>
       <NButton v-permission="'button:role_create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5"/>
-        新建角色
+        {{ t('views.system.role.new') }}
       </NButton>
     </template>
 
-    <!-- 使用重构后的 CrudTable -->
+    <!-- CrudTable -->
     <CrudTable
         :columns="columns"
         :data="roles"
@@ -192,12 +195,12 @@ const columns = [
         @search="handleSearch"
     >
       <template #queryBar>
-        <QueryBarItem label="角色名" :label-width="50">
+        <QueryBarItem :label="t('views.system.role.name')" :label-width="50">
           <NInput
               v-model:value="queryParams.role_name"
               clearable
               type="text"
-              placeholder="请输入角色名"
+              :placeholder="t('views.system.role.enter_name')"
               @keypress.enter="handleSearch"
           />
         </QueryBarItem>
@@ -217,13 +220,13 @@ const columns = [
           :model="currentItem"
       >
         <NFormItem
-            label="角色名"
+            :label="t('views.system.role.name')"
             path="name"
-            :rule="{ required: true, message: '请输入角色名称', trigger: ['input', 'blur'] }"
+            :rule="{ required: true, message: t('views.system.role.enter_name_required'), trigger: ['input', 'blur'] }"
         >
           <NInput v-model:value="currentItem.name"/>
         </NFormItem>
-        <NFormItem label="角色描述" path="description">
+        <NFormItem :label="t('views.system.role.description')" path="description">
           <NInput v-model:value="currentItem.description"/>
         </NFormItem>
       </NForm>

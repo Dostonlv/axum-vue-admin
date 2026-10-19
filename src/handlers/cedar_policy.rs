@@ -49,8 +49,8 @@ pub async fn list_policies(
     post,
     path = "",
     request_body=CreatePolicyDto,
-    responses(( status=200,  description = "创建策略成功"),
-                (status=409, description = "策略已存在"),),
+    responses(( status=200,  description = "Policy created"),
+                (status=409, description = "Policy already exists"),),
     tag = CEDAR_POLICY_TAG,
     security(
       ("bearerAuth" = [])
@@ -71,10 +71,10 @@ pub async fn create_policy(
     get,
     path = "/{policy_uuid}",
     params(
-        ("policy_uuid" = String, Path, description = "策略唯一UUID")
+        ("policy_uuid" = String, Path, description = "Policy UUID")
     ),
-    responses(( status=200, body=CedarPolicyResponse, description = "获取成功"),
-    ( status=404, description = "不存在"),),
+    responses(( status=200, body=CedarPolicyResponse, description = "OK"),
+    ( status=404, description = "Not found"),),
     tag = CEDAR_POLICY_TAG,
     security(
       ("bearerAuth" = [])
@@ -98,10 +98,10 @@ pub async fn get_policy(
     path = "/{policy_uuid}",
     request_body=CreatePolicyDto,
     params(
-        ("policy_uuid" = String, Path, description = "Policy唯一UUID")
+        ("policy_uuid" = String, Path, description = "Policy UUID")
     ),
-    responses(( status=200, body=CedarPolicyResponse, description = "更新成功"),
-                (status=404, description="策略不存在"),),
+    responses(( status=200, body=CedarPolicyResponse, description = "Updated"),
+                (status=404, description="Policy not found"),),
     tag = CEDAR_POLICY_TAG,
     security(
       ("bearerAuth" = [])
@@ -126,12 +126,12 @@ pub async fn update_policy(
     delete,
     path = "/{policy_uuid}",
     params(
-        ("policy_uuid" = String, Path, description = "策略唯一UUID")
+        ("policy_uuid" = String, Path, description = "Policy UUID")
     ),
     responses(
-    ( status=200, description="删除成功"),
-    ( status=404, description="策略不存在"),
-    ( status=403, description="删除错误"),
+    ( status=200, description="Deleted"),
+    ( status=404, description="Policy not found"),
+    ( status=403, description="Cannot delete"),
     ),
     tag = CEDAR_POLICY_TAG,
     security(
@@ -154,8 +154,8 @@ pub async fn delete_policy(
 #[utoipa::path(
     post,
     path = "/cache",
-    responses(( status=202, description = "更新成功"),
-                (status=404, description="策略不存在"),),
+    responses(( status=202, description = "Updated"),
+                (status=404, description="Policy not found"),),
     tag = CEDAR_POLICY_TAG,
     security(
       ("bearerAuth" = [])

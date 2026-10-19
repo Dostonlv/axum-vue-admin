@@ -1,4 +1,4 @@
-/** 重置样式 */
+/** Reset styles */
 import '@/styles/reset.css'
 import 'uno.css'
 import '@/styles/global.scss'

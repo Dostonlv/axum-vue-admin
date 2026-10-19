@@ -1,19 +1,19 @@
-## 快速开始
+## Getting started
 
-进入前端目录
+Go to the frontend directory
 
 ```sh
 cd web
 ```
 
-安装依赖(建议使用pnpm: https://pnpm.io/zh/installation)
+Install dependencies (pnpm is recommended: https://pnpm.io/installation)
 
 ```sh
-npm i -g pnpm # 已安装可忽略
-pnpm i # 或者 npm i
+npm i -g pnpm # skip if already installed
+pnpm i # or npm i
 ```
 
-启动
+Start the dev server
 
 ```sh
 pnpm dev

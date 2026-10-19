@@ -4,9 +4,9 @@ export function setupMessage(NMessage) {
   let loadingMessage = null
   class Message {
     /**
-     * 规则：
-     * * loading message只显示一个，新的message会替换正在显示的loading message
-     * * loading message不会自动清除，除非被替换成非loading message，非loading message默认2秒后自动清除
+     * Rules:
+     * * only one loading message is shown; a new message replaces it
+     * * a loading message is never cleared automatically, only replaced; other messages clear after 2s
      */
 
     removeMessage(message = loadingMessage, duration = 2000) {
@@ -20,16 +20,16 @@ export function setupMessage(NMessage) {
 
     showMessage(type, content, option = {}) {
       if (loadingMessage && loadingMessage.type === 'loading') {
-        // 如果存在则替换正在显示的loading message
+        // Replace the loading message if one is showing
         loadingMessage.type = type
         loadingMessage.content = content
 
         if (type !== 'loading') {
-          // 非loading message需设置自动清除
+          // Non-loading messages must be cleared automatically
           this.removeMessage(loadingMessage, option.duration)
         }
       } else {
-        // 不存在正在显示的loading则新建一个message,如果新建的message是loading message则将message赋值存储下来
+        // No loading message showing: create one, and keep a reference if the new message is a loading message
         let message = NMessage[type](content, option)
         if (type === 'loading') {
           loadingMessage = message
@@ -61,13 +61,13 @@ export function setupMessage(NMessage) {
   return new Message()
 }
 
-export function setupDialog(NDialog) {
+export function setupDialog(NDialog, t) {
   NDialog.confirm = function (option = {}) {
     const showIcon = !isNullOrUndef(option.title)
     return NDialog[option.type || 'warning']({
       showIcon,
-      positiveText: '确定',
-      negativeText: '取消',
+      positiveText: t('common.buttons.confirm'),
+      negativeText: t('common.buttons.cancel'),
       onPositiveClick: option.confirm,
       onNegativeClick: option.cancel,
       onMaskClick: option.cancel,

@@ -75,7 +75,7 @@ export function isNullOrWhitespace(val) {
   return isNullOrUndef(val) || isWhitespace(val)
 }
 
-/** 空数组 | 空字符串 | 空对象 | 空Map | 空Set */
+/** empty array | string | object | Map | Set */
 export function isEmpty(val) {
   if (isArray(val) || isString(val)) {
     return val.length === 0
@@ -93,8 +93,8 @@ export function isEmpty(val) {
 }
 
 /**
- * * 类似mysql的IFNULL函数
- * * 第一个参数为null/undefined/'' 则返回第二个参数作为备用值，否则返回第一个参数
+ * * like MySQL's IFNULL
+ * * returns the second argument as a fallback when the first is null/undefined/'', otherwise the first
  * @param {Number|Boolean|String} val
  * @param {Number|Boolean|String} def
  * @returns

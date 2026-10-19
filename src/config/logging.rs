@@ -1,9 +1,6 @@
-// # 日志配置
+// # Logging config
 
-use anyhow::anyhow;
 use serde::{Deserialize, Serialize};
-use tracing::Level;
-use tracing_subscriber::filter::LevelFilter;
 use validator::Validate;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -23,11 +20,11 @@ pub struct LogConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize, Validate)]
 pub struct LogRotationConfig {
-    /// 最大文件大小 (MB)
+    /// Max file size (MB)
     pub max_size: u64,
-    /// 保留文件数量
+    /// Number of files to keep
     pub max_files: u32,
-    /// 是否按时间轮转
+    /// Rotate by time
     pub daily: Rotation,
 }
 

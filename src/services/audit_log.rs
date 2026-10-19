@@ -1,6 +1,6 @@
-// 审计日志路由
+// Audit log routes
 use crate::config::state::AppState;
-use crate::entity::auditlog::{ActiveModel as AuditLogActiveModel, Entity as AuditLogEntity};
+use crate::entity::auditlog::ActiveModel as AuditLogActiveModel;
 use crate::errors::app_error::AppError;
 use crate::schemas::user::UserUUID;
 use sea_orm::{ActiveModelTrait, Set};

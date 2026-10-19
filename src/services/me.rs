@@ -3,21 +3,12 @@ use crate::entity::{
     departments::{
         Column as DepartmentColumn, Entity as DepartmentEntity, Relation as DepartmentRelation,
     },
-    group_roles::Column as GroupRoleColumn,
-    roles::{
-        Column as RoleColumn, Entity as RoleEntity, Model as RoleModel, Relation as RoleRelation,
-    },
-    user_group_members::Column as UserGroupMemberColumn,
     user_groups,
-    user_groups::{
-        Column as UserGroupColumn, Entity as UserGroupEntity, Relation as UserGroupRelation,
-    },
-    user_roles::{Column as UserRoleColumn, Relation as UserRoleRelation},
     users,
     users::{Column as UserColumn, Entity as UserEntity},
 };
 use crate::errors::app_error::AppError;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use crate::common::cedar_utils::{AuthAction, ResourceType};
 use crate::common::entities::{get_role_models_by_user_uuid};
@@ -26,10 +17,9 @@ use crate::schemas::auth::Claims;
 use crate::schemas::cedar_policy::CedarContext;
 use crate::schemas::me::{Info, Profile, UiPolicies};
 use crate::schemas::user::{DeptResponse, GroupResponse};
-use crate::services::user::service::UserService;
 use sea_orm::{
-    ColumnTrait, ConnectionTrait, DbBackend, DbErr, EntityTrait, JoinType, ModelTrait, QueryFilter,
-    QuerySelect, QueryTrait, RelationTrait, Statement,
+    ColumnTrait, EntityTrait, JoinType, ModelTrait, QueryFilter,
+    QuerySelect, QueryTrait, RelationTrait,
 };
 use tokio::task::JoinSet;
 
@@ -130,7 +120,7 @@ impl MeService {
             });
         }
 
-        // 收集所有结果
+        // Collect all results
         while let Some(result) = join_set.join_next().await {
             match result {
                 Ok(Ok((key, has_permission))) => {
@@ -138,8 +128,8 @@ impl MeService {
                         ui_policies.insert(key);
                     }
                 }
-                Ok(Err(_e)) => continue,                 // 权限检查失败
-                Err(e) => return Err(AppError::from(e)), // 任务执行失败
+                Ok(Err(_e)) => continue,                 // permission check failed
+                Err(e) => return Err(AppError::from(e)), // task failed
             }
         }
 

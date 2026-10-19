@@ -12,3 +12,10 @@ pub struct CNPasswordResetTemplate<'a> {
 pub struct ENPasswordResetTemplate<'a> {
     pub reset_url: &'a str,
 }
+
+
+#[derive(Template)]
+#[template(path = "uz/reset_password.html")]
+pub struct UZPasswordResetTemplate<'a> {
+    pub reset_url: &'a str,
+}

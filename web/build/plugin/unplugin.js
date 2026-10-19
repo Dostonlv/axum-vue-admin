@@ -6,9 +6,9 @@ import { FileSystemIconLoader } from 'unplugin-icons/loaders'
 import IconsResolver from 'unplugin-icons/resolver'
 
 /**
- * * unplugin-icons插件，自动引入iconify图标
+ * * unplugin-icons plugin, auto-imports iconify icons
  * usage: https://github.com/antfu/unplugin-icons
- * 图标库: https://icones.js.org/
+ * Icon sets: https://icones.js.org/
  */
 import Icons from 'unplugin-icons/vite'
 import { createSvgIconsPlugin } from 'vite-plugin-svg-icons'

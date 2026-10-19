@@ -7,7 +7,7 @@ use serde_json::json;
 use std::str::FromStr;
 
 
-/// 授权操作定义
+/// Authorization actions
 #[derive(Debug, Clone, Copy)]
 pub enum AuthAction {
     ViewUser,
@@ -20,7 +20,7 @@ pub enum AuthAction {
     CreateDepartment,
     UpdateDepartment,
     MoveDepartment,
-    AddChildDepartment, // 目标父部门是否有某种“管理”或“添加子部门”的权限
+    AddChildDepartment, // whether the target parent department allows adding children
     DeleteDepartment,
     ViewGroup,
     ViewGroupUsers,
@@ -75,13 +75,13 @@ impl AuthAction {
     }
 }
 
-/// 资源类型定义
+/// Resource types
 #[derive(Debug, Clone)]
 pub enum ResourceType {
-    User(Option<String>),      // User::* 或 User::{id}
-    Department(Option<String>), // Department::* 或 Department::{id}
-    Group(Option<String>),     // Group::* 或 Group::{id}
-    Role(Option<String>),      // Role::* 或 Role::{id}
+    User(Option<String>),      // User::* or User::{id}
+    Department(Option<String>), // Department::* or Department::{id}
+    Group(Option<String>),     // Group::* or Group::{id}
+    Role(Option<String>),      // Role::* or Role::{id}
     Policy(Option<String>), // CedarPolicy::*
     Robot(Option<String>),
     RobotAccount(Option<String>),
@@ -117,7 +117,7 @@ impl ResourceType {
     }
 }
 
-/// 授权检查构建器
+/// Authorization check builder
 pub struct AuthorizationBuilder {
     user_id: UserUUID,
     context: CedarContext,

@@ -1,8 +1,8 @@
 <template>
   <n-config-provider
     wh-full
-    :locale="zhCN"
-    :date-locale="dateZhCN"
+    :locale="naiveLocale.locale"
+    :date-locale="naiveLocale.date"
     :theme="appStore.isDark ? darkTheme : undefined"
     :theme-overrides="naiveThemeOverrides"
   >
@@ -24,6 +24,10 @@ import { defineComponent, h } from 'vue'
 import {
   zhCN,
   dateZhCN,
+  enUS,
+  dateEnUS,
+  uzUZ,
+  dateUzUZ,
   darkTheme,
   useLoadingBar,
   useDialog,
@@ -31,12 +35,21 @@ import {
   useNotification,
 } from 'naive-ui'
 import { useCssVar } from '@vueuse/core'
+import { useI18n } from 'vue-i18n'
 import { kebabCase } from 'lodash-es'
 import { setupMessage, setupDialog } from '@/utils'
 import { naiveThemeOverrides } from '~/settings'
 import { useAppStore } from '@/stores'
 
 const appStore = useAppStore()
+const { t } = useI18n({ useScope: 'global' })
+
+const NAIVE_LOCALES = {
+  en: { locale: enUS, date: dateEnUS },
+  uz: { locale: uzUZ, date: dateUzUZ },
+  cn: { locale: zhCN, date: dateZhCN },
+}
+const naiveLocale = NAIVE_LOCALES[appStore.locale] || NAIVE_LOCALES.en
 
 function setupCssVar() {
   const common = naiveThemeOverrides.common
@@ -46,13 +59,13 @@ function setupCssVar() {
   }
 }
 
-// 挂载naive组件的方法至window, 以便在全局使用
+// Expose the naive helpers on window so they work anywhere
 function setupNaiveTools() {
   window.$loadingBar = useLoadingBar()
   window.$notification = useNotification()
 
   window.$message = setupMessage(useMessage())
-  window.$dialog = setupDialog(useDialog())
+  window.$dialog = setupDialog(useDialog(), t)
 }
 
 const NaiveProviderContent = defineComponent({

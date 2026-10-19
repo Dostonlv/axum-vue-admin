@@ -21,7 +21,7 @@ pub struct EmailService {
 impl EmailService {
     pub fn new(config: &SmtpConfig) -> Result<Self, AppError> {
         let mailer = match config.tls {
-            // --- 处理加密连接 (异步) ---
+            // --- Encrypted connection (async) ---
             true => {
                 let mut builder = AsyncSmtpTransport::<Tokio1Executor>::starttls_relay(
                     &config.host,
@@ -36,7 +36,7 @@ impl EmailService {
                 }
                 Mailer::Secure(builder.build())
             }
-            // --- 处理不加密连接 (同步) ---
+            // --- Plain connection (sync) ---
             false => {
                 let mut builder = SmtpTransport::builder_dangerous(&config.host);
                 builder = builder.port(config.port);
@@ -53,7 +53,7 @@ impl EmailService {
         Ok(Self { mailer })
     }
 
-    // 发送邮件的方法
+    // Send an email
     #[instrument(skip(self, to, subject, body))]
     pub async fn send(
         &self,
@@ -76,18 +76,18 @@ impl EmailService {
             .body(String::from(body))
             .map_err(|e| internal_server_error!("Failed to build email message: {}", e))?;
 
-        info!(recipient = %to, "正在发送邮件...");
+        info!(recipient = %to, "Sending email...");
 
         return match &self.mailer {
             Mailer::Secure(mailer) => {
                 mailer.send(email).await?;
-                info!("邮件发送成功");
+                info!("Email sent");
                 Ok(())
             }
             Mailer::Insecure(mailer) => {
                 let mailer_clone = mailer.clone();
-                tokio::task::spawn_blocking(move || mailer_clone.send(&email)).await??; // 第一个 ? 处理 JoinError, 第二个 ? 处理 SmtpError
-                info!("邮件发送成功");
+                tokio::task::spawn_blocking(move || mailer_clone.send(&email)).await??; // first ? handles JoinError, second handles SmtpError
+                info!("Email sent");
                 Ok(())
             }
         };

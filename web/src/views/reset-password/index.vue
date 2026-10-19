@@ -4,7 +4,7 @@ import bgImg from '@/assets/images/login_bg.webp'
 import AppPage from '@/components/page/AppPage.vue'
 import { useI18n } from 'vue-i18n'
 
-import {authApi} from '@/composables/auth'
+import {authApi} from '@/api/authApi'
 
 const { t } = useI18n({ useScope: 'global' })
 

@@ -12,10 +12,13 @@ import TheIcon from '@/components/icon/TheIcon.vue';
 import CrudTable from '@/components/table/CrudTable.vue';
 import QueryBarItem from '@/components/query-bar/QueryBarItem.vue';
 import CrudModal from '@/components/table/CrudModal.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n({ useScope: 'global' });
 
 const $message = window.$message;
 
-defineOptions({name: '用户组管理'});
+defineOptions({name: 'GroupManagement'});
 
 
 const store = useUserGroupStore();
@@ -37,14 +40,14 @@ const isSubmitting = ref(false);
 
 const showRoleDrawer = ref(false);
 const currentGroupId = ref(null);
-const roleFilterPattern = ref(''); // 角色树筛选文本
+const roleFilterPattern = ref(''); // role tree filter text
 
 
 const queryParams = reactive({});
 
 const loadData = (page, pageSize) => {
   store.fetchGroups({...queryParams, page, pageSize})
-      .catch(error => $message.error(`加载用户组失败: ${error.message}`));
+      .catch(error => $message.error(`${t('views.system.group.load_failed')}: ${error.message}`));
 };
 
 onMounted(() => {
@@ -80,14 +83,14 @@ const handleSave = async () => {
   try {
     if (modalType.value === 'create') {
       await store.createGroup(currentItem.value);
-      $message.success('创建成功');
+      $message.success(t('common.messages.create_success'));
     } else {
       await store.updateGroup(currentItem.value.uuid, currentItem.value);
-      $message.success('更新成功');
+      $message.success(t('common.messages.update_success'));
     }
     showCrudModal.value = false;
   } catch (error) {
-    $message.error(`保存失败: ${error.message}`);
+    $message.error(`${t('common.messages.save_failed')}: ${error.message}`);
   } finally {
     isSubmitting.value = false;
   }
@@ -96,9 +99,9 @@ const handleSave = async () => {
 const handleDelete = async (row) => {
   try {
     await store.deleteGroup(row.uuid);
-    $message.success('删除成功');
+    $message.success(t('common.messages.delete_success'));
   } catch (error) {
-    $message.error(`删除失败: ${error.message}`);
+    $message.error(`${t('common.messages.delete_failed')}: ${error.message}`);
   }
 };
 
@@ -106,11 +109,11 @@ const handleDelete = async (row) => {
 const handleSetRoles = async (row) => {
   currentGroupId.value = row.uuid;
   try {
-    // 请求当前用户组的角色，Store会更新 checkedRoleKeys
+    // Load the group's roles; the store updates checkedRoleKeys
     await store.fetchGroupRoles(row.uuid);
     showRoleDrawer.value = true;
   } catch (error) {
-    $message.error(`获取角色信息失败: ${error.message}`);
+    $message.error(`${t('views.system.group.roles_load_failed')}: ${error.message}`);
   }
 };
 
@@ -125,8 +128,8 @@ const handleRoleCheckChange = async (keys, option, meta) => {
       await store.revokeRoleFromGroup(currentGroupId.value, roleId);
     }
   } catch (error) {
-    $message.error(`操作失败: ${error.message}`);
-    // 刷新一次角色列表，以回滚UI上的错误勾选
+    $message.error(`${t('common.messages.operation_failed')}: ${error.message}`);
+    // Reload the roles to roll back the wrong check in the UI
     await store.fetchGroupRoles(currentGroupId.value);
   }
 };
@@ -134,7 +137,7 @@ const handleRoleCheckChange = async (keys, option, meta) => {
 
 const columns = [
   {
-    title: '用户组',
+    title: t('views.system.group.name'),
     key: 'name',
     width: 80,
     align: 'center',
@@ -144,13 +147,13 @@ const columns = [
     },
   },
   {
-    title: '用户组描述',
+    title: t('views.system.group.description'),
     key: 'description',
     width: 80,
     align: 'center',
   },
   {
-    title: '创建日期',
+    title: t('common.fields.created_date'),
     key: 'created_at',
     width: 60,
     align: 'center',
@@ -159,7 +162,7 @@ const columns = [
     },
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     width: 260,
     align: 'center',
@@ -178,7 +181,7 @@ const columns = [
                   },
                 },
                 {
-                  default: () => '编辑',
+                  default: () => t('common.buttons.edit'),
                   icon: renderIcon('material-symbols:edit-outline', {size: 16}),
                 }
             ),
@@ -198,13 +201,13 @@ const columns = [
                         style: 'margin-right: 8px;',
                       },
                       {
-                        default: () => '删除',
+                        default: () => t('common.buttons.delete'),
                         icon: renderIcon('material-symbols:delete-outline', {size: 16}),
                       }
                   ),
                   [[vPermission, 'button:group_delete']]
               ),
-              default: () => h('div', {}, '确定删除该用户组吗?'),
+              default: () => h('div', {}, t('views.system.group.confirm_delete')),
             }
         ),
 
@@ -214,7 +217,7 @@ const columns = [
                   type: 'primary',
                   onClick: () => handleSetRoles(row),
                 },
-                {default: () => '设置角色', icon: renderIcon('icon-park-outline:permissions', {size: 16})}
+                {default: () => t('views.system.group.set_roles'), icon: renderIcon('icon-park-outline:permissions', {size: 16})}
             ),
             [[vPermission, 'button:group_update']]
         ),
@@ -225,11 +228,11 @@ const columns = [
 </script>
 
 <template>
-  <CommonPage show-footer title="用户组列表">
+  <CommonPage show-footer :title="t('views.system.group.list')">
     <template #action>
       <NButton v-permission="'button:group_create'" type="primary" @click="handleAdd">
         <TheIcon icon="material-symbols:add" :size="18" class="mr-5"/>
-        新建用户组
+        {{ t('views.system.group.new') }}
       </NButton>
     </template>
 
@@ -244,12 +247,12 @@ const columns = [
         @reset="handleResetSearch"
     >
       <template #queryBar>
-        <QueryBarItem label="用户组名" :label-width="60">
+        <QueryBarItem :label="t('views.system.group.name')" :label-width="60">
           <NInput
               v-model:value="queryParams.name"
               clearable
               type="text"
-              placeholder="请输入角色名"
+              :placeholder="t('views.system.group.enter_name')"
               @keypress.enter="handleSearch()"
           />
         </QueryBarItem>
@@ -258,7 +261,7 @@ const columns = [
 
     <CrudModal
         v-model:visible="showCrudModal"
-        :title="modalType === 'create' ? '新建用户组' : '编辑用户组'"
+        :title="modalType === 'create' ? t('views.system.group.new') : t('views.system.group.edit')"
         :loading="isSubmitting"
         @save="handleSave"
     >
@@ -271,33 +274,33 @@ const columns = [
           :disabled="userGroupCrud.state.modalType === 'view'"
       >
         <NFormItem
-            label="角色名"
+            :label="t('views.system.group.name')"
             path="name"
             :rule="{
             required: true,
-            message: '请输入用户组名称',
+            message: t('views.system.group.enter_name'),
             trigger: ['input', 'blur'],
           }"
         >
-          <NInput v-model:value="currentItem.name" placeholder="请输入用户组名称"/>
+          <NInput v-model:value="currentItem.name" :placeholder="t('views.system.group.enter_name')"/>
         </NFormItem>
-        <NFormItem label="请输入用户组描述" path="desc">
-          <NInput v-model:value="currentItem.description" placeholder="请输入用户组描述"/>
+        <NFormItem :label="t('views.system.group.description')" path="desc">
+          <NInput v-model:value="currentItem.description" :placeholder="t('views.system.group.enter_description')"/>
         </NFormItem>
       </NForm>
     </CrudModal>
 
     <NDrawer v-model:show="showRoleDrawer" placement="right" :width="500">
-      <NDrawerContent title="设置角色">
+      <NDrawerContent :title="t('views.system.group.set_roles')">
         <NSpace vertical :size="20">
           <NInput
               v-model:value="roleFilterPattern"
-              placeholder="筛选角色"
+              :placeholder="t('views.system.group.filter_roles')"
               clearable
               size="large"
           />
 
-          <NSpin :show="isRoleTreeLoading" description="正在加载或操作角色，请稍候..." size="medium">
+          <NSpin :show="isRoleTreeLoading" :description="t('views.system.group.roles_busy')" size="medium">
             <div :style="{ minHeight: '300px', maxHeight: 'calc(100vh - 250px)', overflowY: 'auto' }">
               <NTree
                   block-line

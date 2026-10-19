@@ -1,25 +1,25 @@
 import { useUserStore } from '@/stores'
 
 /**
- * 检查当前用户是否对某个UI资源有访问权限
- * @param {string} resourceIdentifier - 资源的唯一标识, e.g., 'menus:dashboard'
+ * Check whether the current user may access a UI resource
+ * @param {string} resourceIdentifier - unique resource identifier, e.g., 'menus:dashboard'
  * @returns {boolean}
  */
 export function hasPermission(resourceIdentifier) {
   const user = useUserStore()
 
   const uiPolicies = user.uiPolicies || []
-  // 1. 最高优先级：检查布尔值标识
+  // 1. Highest priority: boolean flag
   if (user && user.isSuperUser) {
     return true;
   }
 
-  // 如果不是超级管理员，再走标准的权限检查流程
+  // Not a super admin, so run the regular permission check
   if (!user || !user.uiPolicies) {
     return false;
   }
 
-  // 5. 检查用户是否拥有该权限
+  // 5. Check whether the user holds the permission
   return uiPolicies.includes(resourceIdentifier);
 }
 

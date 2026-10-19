@@ -1,4 +1,4 @@
-// JWT工具
+// JWT helpers
 
 use crate::config::auth::{ACCESS_TOKEN_SECRET, CSRF_SECRET, REFRESH_TOKEN_SECRET};
 use crate::errors::app_error::AppError;

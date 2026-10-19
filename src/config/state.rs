@@ -7,13 +7,10 @@ use crate::services::cache::CacheService;
 use crate::services::cedar_auth::CedarAuthService;
 use crate::services::email::EmailService;
 use crate::services::policy_link_manager::PolicyLinkManager;
-use cedar_policy::{Entities, PolicySet, Schema};
-use sea_orm::{ConnectOptions, Database, DatabaseConnection};
+use sea_orm::{Database, DatabaseConnection};
 use std::collections::HashMap;
 use std::sync::Arc;
-use std::time::Duration;
 use tokio::sync::{Mutex, mpsc};
-use tracing::info;
 
 pub type SSESenders = Arc<Mutex<HashMap<String, mpsc::Sender<String>>>>;
 
@@ -24,7 +21,7 @@ pub struct AppState {
     pub auth_service: Arc<CedarAuthService>,
     pub cache_service: Arc<CacheService>,
     pub email_service: Arc<EmailService>,
-    pub sse_senders: SSESenders, // 这个SSE对象可以在全局Handler中对用户发送消息
+    pub sse_senders: SSESenders, // lets any handler push messages to a user
     pub policy_link_manager: Arc<PolicyLinkManager>,
 }
 
@@ -56,13 +53,13 @@ impl AppState {
         auth_service
             .update_policies_and_templates_in_cache(&initial_policies)
             .await?;
-        // info!("已成功加载并缓存策略和模板。");
+        // info!("Policies and templates loaded and cached.");
 
         let initial_link_records = load_all_template_links(arc_db.clone()).await?;
         auth_service
             .update_template_link_records_in_cache(&initial_link_records)
             .await?;
-        // info!("成功加载并缓存 {} 个模板链接。", initial_link_records.len());
+        // info!("Loaded and cached {} template links.", initial_link_records.len());
 
         let policy_link_manager =
             Arc::new(PolicyLinkManager::new(arc_db.clone(), auth_service.clone()));

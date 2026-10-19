@@ -6,7 +6,6 @@ use crate::schemas::cedar_policy::{
 };
 use crate::schemas::response::ApiResponse;
 use crate::services::cedar_schema::CedarSchemaService;
-use axum::extract::Query;
 use axum::{
     extract::{Extension, Path, State},
     http::StatusCode,
@@ -38,10 +37,10 @@ pub async fn list_schema(
     path = "/{schema_id}",
     request_body=UpdateSchema,
     params(
-        ("schema_id" = i32, Path, description = "Schema唯一ID", example = 42)
+        ("schema_id" = i32, Path, description = "Schema ID", example = 42)
     ),
-    responses(( status=200, body=CedarPolicyResponse, description = "更新成功"),
-                (status=404, description="策略不存在"),),
+    responses(( status=200, body=CedarPolicyResponse, description = "Updated"),
+                (status=404, description="Policy not found"),),
     tag = CEDAR_POLICY_TAG,
     security(
       ("bearerAuth" = [])

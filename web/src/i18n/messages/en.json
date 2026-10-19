@@ -4,9 +4,9 @@
   "header": {
     "label_profile": "Profile",
     "label_logout": "Logout",
-    "label_logout_dialog_title": "Hint",
-    "text_logout_confirm": "Logout confirm",
-    "text_logout_success": "Logout success"
+    "label_logout_dialog_title": "Confirm",
+    "text_logout_confirm": "Log out of your account?",
+    "text_logout_success": "Logged out"
   },
   "views": {
     "login": {
@@ -14,71 +14,206 @@
       "message_input_username_password": "Please enter username and password",
       "message_verifying": "Verifying...",
       "message_login_success": "Login successful",
-      "forget_password": "Forget password",
-      "invalidUsername": "Invalid username",
+      "forget_password": "Forgot password?",
+      "invalidUsername": "User not found",
       "incorrectPassword": "Incorrect password",
-      "userHasDisabled": "User has been disabled"
+      "userHasDisabled": "User has been disabled",
+      "login_failed": "Login failed",
+      "login_failed_check": "Login failed, check your credentials"
     },
     "forget_password": {
-      "forget_password": "Forgot Password",
-      "send_password_reset_email": "Send password reset email.",
-      "message_forget_password_success": "Password reset email has been sent.",
-      "sendEmailSuccess": "Check your email for instructions on how to reset your password.",
+      "forget_password": "Forgot password?",
+      "send_password_reset_email": "Send reset email",
+      "message_forget_password_success": "Password reset email sent",
+      "sendEmailSuccess": "Check your inbox for instructions on resetting your password.",
       "notFound": "Email not found"
     },
     "resetPassword": {
       "resetPassword": "Reset Password",
       "resetSuccessful": "Password reset successful",
-      "tokenNotFound": "The link has expired."
+      "tokenNotFound": "The link has expired"
     },
     "workbench": {
       "label_workbench": "Workbench",
-      "text_hello": "hello, {username}",
-      "text_welcome": "Today is another day full of energy!",
+      "text_hello": "Hello, {username}",
+      "text_welcome": "Another day, another chance to get things done!",
       "label_number_of_items": "Number of items",
       "label_upcoming": "Upcoming",
       "label_information": "Information",
       "label_project": "Project",
-      "label_more": "More"
+      "label_more": "More",
+      "text_description": "A lightweight admin template built on Axum, SeaORM, Cedar Policy, Vue 3 and Naive UI"
     },
     "profile": {
       "label_profile": "Profile",
-      "label_modify_information": "Modify your information",
+      "label_modify_information": "Edit your information",
       "label_change_password": "Change password",
       "label_avatar": "Avatar",
       "label_username": "Username",
       "label_email": "Email",
       "label_old_password": "Old password",
       "label_new_password": "New password",
-      "label_confirm_password": "Password confirmation",
-      "placeholder_username": "Please fill in your name",
-      "placeholder_email": "Please fill in your email address",
-      "placeholder_old_password": "Please enter the old password",
-      "placeholder_new_password": "Please enter a new password",
-      "placeholder_confirm_password": "Please enter the confirm password",
-      "message_username_required": "Please enter username",
-      "message_old_password_required": "Please enter the old password",
-      "message_new_password_required": "Please enter a new password",
-      "message_password_confirmation_required": "Please enter confirm password",
-      "message_password_confirmation_diff": "Two password inputs are inconsistent"
+      "label_confirm_password": "Confirm password",
+      "placeholder_username": "Enter your name",
+      "placeholder_email": "Enter your email address",
+      "placeholder_old_password": "Enter your old password",
+      "placeholder_new_password": "Enter a new password",
+      "placeholder_confirm_password": "Enter the new password again",
+      "message_username_required": "Enter a username",
+      "message_old_password_required": "Enter your old password",
+      "message_new_password_required": "Enter a new password",
+      "message_password_confirmation_required": "Enter the password again",
+      "message_password_confirmation_diff": "The two passwords don't match"
     },
     "errors": {
       "label_error": "Error",
       "text_back_to_home": "Back to home"
+    },
+    "system": {
+      "cedar": {
+        "warn_title": "Warning!",
+        "warn_content": "Be careful: a wrong change can break access control.",
+        "warn_ok": "I understand",
+        "warn_cancel": "Never mind"
+      },
+      "user": {
+        "new": "New user",
+        "edit": "Edit user",
+        "load_failed": "Failed to load users",
+        "roles_load_failed": "Failed to load roles",
+        "select_role": "Select a role to add",
+        "role_added": "Role added",
+        "add_failed": "Failed to add",
+        "role_removed": "Role removed",
+        "remove_failed": "Failed to remove",
+        "col_name": "Name",
+        "email": "Email",
+        "group": "Group",
+        "last_login": "Last login",
+        "view_roles": "View roles",
+        "confirm_delete": "Delete this user?",
+        "role": "Role",
+        "source": "Source",
+        "confirm_remove_role": "Remove this direct role from the user?",
+        "enter_name": "Enter a name",
+        "enter_email_address": "Enter an email address",
+        "invalid_email": "Invalid email format",
+        "enter_password": "Enter a password",
+        "select_dept_required": "Select a department",
+        "enter_password_again": "Enter the password again",
+        "dept_list": "Departments",
+        "list": "Users",
+        "enter_username": "Enter a username",
+        "enter_email": "Enter an email",
+        "username": "Username",
+        "select_dept": "Select a department",
+        "add_role": "Add role"
+      },
+      "role": {
+        "new": "New role",
+        "edit": "Edit role",
+        "load_failed": "Failed to load roles",
+        "name": "Role name",
+        "description": "Role description",
+        "confirm_delete": "Delete this role?",
+        "list": "Roles",
+        "enter_name": "Enter a role name",
+        "enter_name_required": "Enter a role name"
+      },
+      "dept": {
+        "new": "New department",
+        "edit": "Edit department",
+        "load_failed": "Failed to load departments",
+        "enter_name": "Enter a department name",
+        "name": "Department name",
+        "confirm_delete": "Delete this department?",
+        "list": "Departments",
+        "parent": "Parent department",
+        "select_parent": "Select a parent department"
+      },
+      "group": {
+        "load_failed": "Failed to load groups",
+        "roles_load_failed": "Failed to load the group's roles",
+        "description": "Group description",
+        "set_roles": "Set roles",
+        "confirm_delete": "Delete this group?",
+        "list": "Groups",
+        "new": "New group",
+        "edit": "Edit group",
+        "name": "Group name",
+        "enter_name": "Enter a group name",
+        "enter_description": "Enter a group description",
+        "filter_roles": "Filter roles",
+        "roles_busy": "Loading or updating roles, please wait..."
+      },
+      "policy": {
+        "new": "New policy",
+        "edit": "Edit policy",
+        "load_failed": "Failed to load policies",
+        "sync_success": "Synced, the policies are now active",
+        "sync_failed": "Sync failed",
+        "annotation": "Annotation",
+        "effect": "Effect",
+        "type": "Type",
+        "confirm_delete": "Delete this policy?",
+        "list": "Access policies",
+        "apply_now": "Apply now",
+        "permit": "Permit",
+        "forbid": "Forbid",
+        "text": "Policy text",
+        "policy_type": "Policy type"
+      },
+      "schema": {
+        "load_failed": "Failed to load schemas",
+        "edit": "Edit schema",
+        "list": "Schemas"
+      },
+      "auditlog": {
+        "summary": "API summary",
+        "module": "Module",
+        "method": "Method",
+        "path": "Path",
+        "status_code": "Status code",
+        "request_body": "Request body",
+        "response_body": "Response body",
+        "response_time": "Response time (s)",
+        "time": "Time",
+        "enter_module": "Enter a module",
+        "enter_summary": "Enter an API summary",
+        "select_method": "Select a method",
+        "enter_path": "Enter a path",
+        "enter_status_code": "Enter a status code",
+        "select_range": "Select a time range"
+      }
+    },
+    "top_menu": {
+      "title": "Top-level menu"
     }
   },
   "common": {
     "text": {
       "severError": "500 Server Error",
-      "update_success": "Update success",
+      "update_success": "Updated",
       "pagination": "Total {itemCount} items",
-      "miss_file": "Miss File",
-      "last_schedule_time": "Last schedule time: {datetimeStr}"
+      "miss_file": "File not found",
+      "last_schedule_time": "Last run: {datetimeStr}"
     },
     "buttons": {
       "update": "Update",
       "reset": "Reset",
-      "viewDetail": "view detail"
+      "viewDetail": "View details",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "search": "Search",
+      "confirm": "OK",
+      "reload": "Reload",
+      "close": "Close",
+      "close_others": "Close others",
+      "close_left": "Close to the left",
+      "close_right": "Close to the right",
+      "retry": "Retry"
     },
     "fields": {
       "name": "Name",
@@ -86,20 +221,71 @@
       "account": "Account",
       "category": "Category",
       "region": "Region",
-      "expiration_time": "Expiration Time",
-      "dept": "Dept",
+      "expiration_time": "Expiration time",
+      "dept": "Department",
       "robot": "Robot",
       "detail": "Detail",
-      "start_at": "Start Time",
-      "end_at": "End Time",
+      "start_at": "Start time",
+      "end_at": "End time",
       "description": "Description",
       "status": "Status",
-      "created_at": "Create Time",
-      "operate": "Operate",
+      "created_at": "Created at",
+      "operate": "Actions",
       "password": "Password",
       "node": "Node",
       "result_file": "Result File",
-      "historyId": "History ID"
+      "historyId": "History ID",
+      "remark": "Remark",
+      "created_date": "Created",
+      "order": "Order",
+      "log": "Log"
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "is_enabled": "Enabled",
+      "not_enabled": "Disabled"
+    },
+    "messages": {
+      "create_success": "Created",
+      "update_success": "Updated",
+      "delete_success": "Deleted",
+      "save_failed": "Failed to save",
+      "delete_failed": "Failed to delete",
+      "operation_failed": "Operation failed",
+      "update_failed": "Failed to update"
+    },
+    "empty": {
+      "no_data": "No data",
+      "none": "No data",
+      "network_error": "Network error",
+      "click_retry": "click to retry"
+    }
+  },
+  "api": {
+    "session_expired": "Session expired, please log in again.",
+    "unknown_error": "Unknown error",
+    "bad_request": "Invalid request parameters",
+    "forbidden": "You don't have permission to do this",
+    "not_found": "Resource not found",
+    "server_error": "Internal server error",
+    "request_failed": "Request failed",
+    "network_error": "Network error, check your connection",
+    "cancelled": "Request cancelled"
+  },
+  "menu": {
+    "system": "System",
+    "user": "Users",
+    "group": "Groups",
+    "role": "Roles",
+    "dept": "Departments",
+    "cedar_policy": "Cedar policies",
+    "cedar_schema": "Cedar schema"
+  },
+  "components": {
+    "icon_picker": {
+      "placeholder": "Enter an icon name",
+      "more": "More icons on {link}"
     }
   }
 }

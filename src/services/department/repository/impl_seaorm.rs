@@ -6,19 +6,15 @@ use crate::schemas::auth::{Claims};
 use crate::schemas::cedar_policy::CedarContext;
 use crate::schemas::department::{CreateDepartmentDto, DepartmentResponse, DeptTreeNode};
 use crate::schemas::user::{DeptResponse, GroupResponse, UserResponse};
-use crate::{bad_request, conflict, errors::app_error::AppError, forbidden, not_found};
+use crate::{bad_request, conflict, errors::app_error::AppError, not_found};
 use async_recursion::async_recursion;
-use cedar_policy::{
-    Entities, Entity, EntityId, EntityTypeName, EntityUid, RestrictedExpression, Schema,
-};
 use sea_orm::ActiveValue::Set;
 use sea_orm::{
-    ColumnTrait, Condition, DatabaseTransaction, DbBackend, EntityTrait, JoinType, QueryFilter,
-    QueryOrder, QuerySelect, Statement, TransactionTrait, TryGetableMany, entity::prelude::*,
+    ColumnTrait, Condition, DatabaseTransaction, EntityTrait, JoinType, QueryFilter,
+    QueryOrder, QuerySelect, TransactionTrait, entity::prelude::*,
 };
-use std::collections::{HashMap, HashSet, VecDeque};
-use std::str::FromStr;
-use tracing::{debug, warn};
+use std::collections::{HashMap, VecDeque};
+use tracing::warn;
 
 const MAX_DEPT_DEPTH: usize = 100;
 const ROOT_DEPARTMENT_ID: i32 = 0;
@@ -84,7 +80,7 @@ impl DepartmentService {
             //     .await?
             //     .ok_or_else(|| not_found!("User's current department not found"))?;
 
-            // 从完整列表中找到该部门的 id
+            // Find the department's id in the full list
             departments::Entity::find()
                 .select_only()
                 .column(departments::Column::DeptId)
@@ -264,7 +260,7 @@ impl DepartmentService {
             return Err(bad_request!("Deletion of root department is not allowed."));
         };
 
-        // 检查部门是否有子部门
+        // Check whether the department has children
         if self
             .has_children_optimized(&txn, dept_model.dept_id)
             .await?
@@ -274,13 +270,13 @@ impl DepartmentService {
             ));
         }
 
-        // 检查该部门是否还有用户
+        // Check whether the department still has users
         if self.has_user_optimized(&txn, dept_model.dept_id).await? {
             return Err(bad_request!("Department has users, deletion not allowed."));
         }
-        // 如果是这个部门还绑定了其他资源，还需要补全逻辑
+        // If other resources get bound to departments, the check needs extending
 
-        // 删除部门
+        // Delete the department
         let mut active_model: departments::ActiveModel = dept_model.into();
         active_model.is_deleted = Set(true);
         active_model.update(&txn).await?;
@@ -352,7 +348,7 @@ impl DepartmentService {
     }
 }
 
-// 获取所有子部门的ID
+// IDs of all child departments
 pub async fn get_all_child_dept_ids(
     db: &DatabaseConnection,
     parent_dept_uuid: &str,
@@ -381,7 +377,7 @@ pub async fn get_all_child_dept_ids(
     let mut queue = VecDeque::new();
     queue.push_back(parent_dept_id);
 
-    // 包含起始的父部门ID
+    // include the starting parent ID
     all_child_ids.push(parent_dept_id);
 
     while let Some(current_id) = queue.pop_front() {
@@ -399,7 +395,7 @@ pub async fn get_all_child_dept_ids(
 }
 
 
-// 获取当前部门的所有父级部门UUID
+// UUIDs of all ancestors of a department
 pub async fn find_parents_dept_id(
     db: &DatabaseConnection,
     current_dept_uuid: &str,
@@ -419,21 +415,21 @@ pub async fn find_parents_dept_id(
     let start_id = all_depts
         .iter()
         .find(|(_, _, uuid)| uuid == current_dept_uuid)
-        .map(|(id, _, _)| *id) // 提取 id
+        .map(|(id, _, _)| *id) // extract the id
         .ok_or_else(|| {
             not_found!(format!(
-                "未找到具有 UUID“{}”的起始部门。",
+                "Starting department with UUID '{}' not found.",
                 current_dept_uuid
             ))
         })?;
 
-    // `id -> parent_id` 用于遍历。
+    // `id -> parent_id` is used for the walk.
     let parent_map: HashMap<i32, i32> = all_depts
         .iter()
         .map(|(id, parent_id, _)| (*id, *parent_id))
         .collect();
 
-    // `id -> uuid` 用于在最后构建响应。
+    // `id -> uuid` is used to build the response at the end.
     let id_to_uuid_map: HashMap<i32, &String> =
         all_depts.iter().map(|(id, _, uuid)| (*id, uuid)).collect();
 
@@ -447,14 +443,14 @@ pub async fn find_parents_dept_id(
 
         if let Some(&parent_id) = parent_map.get(&id) {
             if parent_id != ROOT_DEPARTMENT_ID {
-                // 查找父部门的 UUID
+                // Look up the parent's UUID
                 if let Some(parent_uuid) = id_to_uuid_map.get(&parent_id) {
                     parent_uuids.push(parent_uuid.to_string());
                 } else {
-                    // 数据完整性问题：找到了 parent_id，但在 id_to_uuid_map 中没有对应的条目。
-                    // 这意味着父部门可能被软删除了，或者存在孤立数据。
+                    // Data integrity issue: parent_id found, but id_to_uuid_map has no entry for it.
+                    // The parent may have been soft-deleted, or the row is orphaned.
                     warn!(
-                        "数据完整性问题：在活动列表中未找到 ID {} 的父部门（parent_id：{}）。",
+                        "Data integrity issue: parent department with ID {} (parent_id: {}) not found in the active list.",
                         id, parent_id
                     );
                     break;
@@ -462,7 +458,7 @@ pub async fn find_parents_dept_id(
             }
             current_id = Some(parent_id);
         } else {
-            // 追溯链断裂，当前 ID 不在映射中。
+            // The chain is broken, the current ID is not in the map.
             break;
         }
     }
@@ -480,13 +476,13 @@ pub async fn build_dept_tree(
 
     if let Some(children_models) = depts_by_parent.get(&parent_id) {
         for dept in children_models {
-            // 递归构建子树
+            // Build the subtree recursively
             let children = build_dept_tree(depts_by_parent, id_to_uuid_map, dept.dept_id).await?;
 
             let parent_uuid = id_to_uuid_map
                 .get(&dept.parent_id)
                 .map(|s| s.to_string())
-                // 如果 parent_id 是 0 (根节点)，则使用虚拟的根 UUID
+                // If parent_id is 0 (root), use the virtual root UUID
                 .unwrap_or_else(|| ROOT_DEPARTMENT_UUID.to_string());
 
             tree_nodes.push(DeptTreeNode {
@@ -531,16 +527,16 @@ pub async fn build_dept_tree_optimized_with_uuid(
         let target_dept_opt = all_departments.iter().find(|d| d.dept_id == target_id);
 
         if let Some(dept) = target_dept_opt {
-            // 递归构建该部门的子节点
+            // Build this department's children recursively
             let children = build_dept_tree(&depts_by_parent, &id_to_uuid_map, dept.dept_id).await?;
 
-            // 获取该部门的 parent_uuid
+            // Get this department's parent_uuid
             let parent_uuid = id_to_uuid_map
                 .get(&dept.parent_id)
                 .map(|s| s.to_string())
                 .unwrap_or_else(|| ROOT_DEPARTMENT_UUID.to_string());
 
-            // 构建当前单一节点
+            // Build the single node
             let node = DeptTreeNode {
                 uuid: dept.dept_uuid.clone(),
                 name: dept.name.clone(),
@@ -550,38 +546,38 @@ pub async fn build_dept_tree_optimized_with_uuid(
                 children,
             };
 
-            // 返回包含这一个根节点的 Vec
+            // Return a Vec with just this root
             Ok(vec![node])
         } else {
-            // 如果指定的 ID 不存在，返回空列表
+            // Unknown ID: return an empty list
             Ok(vec![])
         }
     };
 }
 
-// 获取当前用户所有的子部门id
+// IDs of all child departments
 pub async fn children_dept(db: &DatabaseConnection, parent_id: i32) -> Result<Vec<i32>, DbErr> {
-    // 获取所有部门并按 order 排序
+    // Load all departments ordered by `order`
     let all_depts = departments::Entity::find()
         .columns([departments::Column::DeptId, departments::Column::ParentId])
         .order_by_asc(departments::Column::Order)
         .all(db)
         .await?;
 
-    // 初始化结果集（包含自身）
+    // Result set (includes the department itself)
     let mut dept_ids = vec![parent_id];
-    // 使用 VecDeque 作为队列（比 Vec 更适合 FIFO 操作）
+    // VecDeque as the queue (better suited to FIFO than Vec)
     let mut to_visit = VecDeque::from([parent_id]);
 
     while let Some(current_id) = to_visit.pop_front() {
-        // 查找当前部门的所有直接子部门
+        // Find the direct children
         let children: Vec<i32> = all_depts
             .iter()
             .filter(|dept| dept.parent_id == current_id)
             .map(|dept| dept.dept_id)
             .collect();
 
-        // 添加到结果集和待访问队列
+        // Add to the result set and the queue
         dept_ids.extend(&children);
         to_visit.extend(children);
     }
@@ -589,25 +585,25 @@ pub async fn children_dept(db: &DatabaseConnection, parent_id: i32) -> Result<Ve
     Ok(dept_ids)
 }
 
-// 组装用户信息(用户信息、角色信息、部门信息)
+// Assemble user info (user, roles, department)
 pub async fn assemble_user_info(
     db: &DatabaseConnection,
     users_with_dept: Vec<(users::Model, Option<departments::Model>)>,
 ) -> Result<Vec<UserResponse>, AppError> {
-    // 2. 收集所有用户ID
+    // 2. Collect all user IDs
     let user_ids: Vec<i32> = users_with_dept
         .iter()
         .map(|(user, _)| user.user_id)
         .collect();
 
-    // 3. 批量查询所有用户的用户组信息
+    // 3. Query the groups of all users in one go
     let user_group_relations = user_group_members::Entity::find()
         .find_also_related(user_groups::Entity)
         .filter(user_group_members::Column::UserId.is_in(user_ids))
         .all(db)
         .await?;
 
-    // 4. 按用户ID分组用户组信息
+    // 4. Group them by user ID
     let mut user_groups_map: HashMap<i32, Vec<GroupResponse>> = HashMap::new();
     for (relation, group_opt) in user_group_relations {
         if let Some(group) = group_opt {
@@ -621,7 +617,7 @@ pub async fn assemble_user_info(
         }
     }
 
-    // 5. 构建最终结果
+    // 5. Build the final result
     let result = users_with_dept
         .into_iter()
         .map(|(user, dept)| UserResponse {

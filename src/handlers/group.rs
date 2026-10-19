@@ -51,8 +51,8 @@ pub async fn list_groups(
     post,
     path = "",
     request_body=CreateGroupDto,
-    responses(( status=200, body=GroupResponse,  description = "创建用户组成功"),
-                (status=409, description = "用户组已存在"),),
+    responses(( status=200, body=GroupResponse,  description = "Group created"),
+                (status=409, description = "Group already exists"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -73,10 +73,10 @@ pub async fn create_group(
     get,
     path = "/{group_uuid}",
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一UUID")
+        ("group_uuid" = String, Path, description = "Group UUID")
     ),
-    responses(( status=200, body=GroupResponse, description = "获取成功"),
-    ( status=404, description = "不存在"),),
+    responses(( status=200, body=GroupResponse, description = "OK"),
+    ( status=404, description = "Not found"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -97,10 +97,10 @@ pub async fn get_group(
     path = "/{group_uuid}",
     request_body=CreateGroupDto,
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一UUID")
+        ("group_uuid" = String, Path, description = "Group UUID")
     ),
-    responses(( status=200, body=GroupResponse, description = "更新成功"),
-                (status=404, description="用户组不存在"),),
+    responses(( status=200, body=GroupResponse, description = "Updated"),
+                (status=404, description="Group not found"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -123,12 +123,12 @@ pub async fn update_group(
     delete,
     path = "/{group_uuid}",
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一UUID")
+        ("group_uuid" = String, Path, description = "Group UUID")
     ),
     responses(
-    ( status=200, description="删除成功"),
-    ( status=404, description="用户组不存在"),
-    ( status=403, description="删除错误"),
+    ( status=200, description="Deleted"),
+    ( status=404, description="Group not found"),
+    ( status=403, description="Cannot delete"),
     ),
     tag = GROUP_TAG,
     security(
@@ -152,9 +152,9 @@ pub async fn delete_group(
     path = "/{group_uuid}/users",
     request_body=AssignUsersDto,
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一UUID")
+        ("group_uuid" = String, Path, description = "Group UUID")
     ),
-    responses(( status=201, description="分配用户组成功"),),
+    responses(( status=201, description="User added to group"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -178,10 +178,10 @@ pub async fn assign_users(
     path = "/{group_uuid}/users/{user_uuid}",
     request_body=AssignUsersDto,
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一UUID"),
-        ("user_uuid" = String, Path, description = "用户唯一UUID",)
+        ("group_uuid" = String, Path, description = "Group UUID"),
+        ("user_uuid" = String, Path, description = "User UUID",)
     ),
-    responses(( status=200, description="删除成功"),),
+    responses(( status=200, description="Deleted"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -204,9 +204,9 @@ pub async fn revoke_users(
     path = "/{group_uuid}/roles",
     request_body=AssignRolesDto,
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一ID")
+        ("group_uuid" = String, Path, description = "Group ID")
     ),
-    responses(( status=201, description="分配角色成功"),),
+    responses(( status=201, description="Role assigned"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -229,10 +229,10 @@ pub async fn assign_roles(
     delete,
     path = "/{group_uuid}/roles/{role_uuid}",
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一ID",),
-        ("role_uuid" = String, Path, description = "角色唯一ID",)
+        ("group_uuid" = String, Path, description = "Group ID",),
+        ("role_uuid" = String, Path, description = "Role ID",)
     ),
-    responses(( status=204, description="移除角色成功"),),
+    responses(( status=204, description="Role removed"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])
@@ -254,10 +254,10 @@ pub async fn revoke_roles(
     get,
     path = "/{group_uuid}/roles",
     params(
-        ("group_uuid" = String, Path, description = "用户组唯一UUID")
+        ("group_uuid" = String, Path, description = "Group UUID")
     ),
-    responses(( status=200, body=GroupRoleResponse, description = "获取成功"),
-    ( status=404, description = "不存在"),),
+    responses(( status=200, body=GroupRoleResponse, description = "OK"),
+    ( status=404, description = "Not found"),),
     tag = GROUP_TAG,
     security(
       ("bearerAuth" = [])

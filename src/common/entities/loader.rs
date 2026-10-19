@@ -3,18 +3,16 @@ use std::str::FromStr;
 use cedar_policy::{Entities, Entity, EntityId, EntityTypeName, EntityUid, RestrictedExpression, Schema};
 use futures_util::TryFutureExt;
 use sea_orm::{DatabaseConnection, EntityTrait, QueryFilter, ColumnTrait, QuerySelect, RelationTrait, JoinType, Condition, QueryTrait};
-use tracing::debug;
 use crate::entity::{cedar_policy_set, departments, group_roles, roles, user_group_members, user_groups, user_roles, users};
 use crate::errors::app_error::AppError;
 use crate::not_found;
-use crate::schemas::role::RoleEntityInfo;
 use crate::services::cache::CacheService;
 
 use super::constants::*;
 use super::trait_def::ToCedarEntity;
 
 
-/// 将一组实现了 ToCedarEntity 的模型转换为 Cedar Entities 对象
+/// Convert a set of ToCedarEntity models into a Cedar Entities object
 fn models_to_entities<T: ToCedarEntity>(
     models: Vec<T>,
     schema: Option<&Schema>
@@ -26,7 +24,7 @@ fn models_to_entities<T: ToCedarEntity>(
     Ok(Entities::from_entities(entities, schema)?)
 }
 
-/// 将 HashSet<Entity> 包装为 Entities 对象
+/// Wrap a HashSet<Entity> into an Entities object
 fn wrap_entities(
     set: HashSet<Entity>,
     schema: Option<&Schema>
@@ -46,14 +44,14 @@ pub async fn get_user_entities(
         return Ok(entities);
     }
 
-    // 获取基础用户信息
+    // Fetch the base user
     let user_info = users::Entity::find()
         .filter(users::Column::UserUuid.eq(user_uuid.clone()))
         .one(db)
         .await?
         .ok_or(not_found!("User {} not found", user_uuid))?;
 
-    // 并行获取角色、组、部门
+    // Fetch roles, groups and departments concurrently
     let (roles, groups, department) = tokio::try_join!(
         get_role_models_by_user_uuid(db, user_uuid.clone()),
 
@@ -79,7 +77,7 @@ pub async fn get_user_entities(
     let mut entities_set = HashSet::new();
     let mut user_parents = HashSet::new();
 
-    // 处理部门逻辑 (及子部门)
+    // Departments (and their children)
     if let Some(dept) = department {
         let descendant_entities = find_descendants_entities(db, dept.dept_id).await?;
         for e in descendant_entities.iter() {
@@ -88,19 +86,19 @@ pub async fn get_user_entities(
         }
     }
 
-    // 处理组
+    // Groups
     for group in groups {
         user_parents.insert(group.get_uid()?);
         entities_set.insert(group.to_cedar_entity()?);
     }
 
-    // 处理角色
+    // Roles
     for role in roles {
         user_parents.insert(role.get_uid()?);
         entities_set.insert(role.to_cedar_entity()?);
     }
 
-    //  构造 User 实体
+    // Build the User entity
     let user_uid = EntityUid::from_type_name_and_id(
         EntityTypeName::from_str(ENTITY_TYPE_USER)?,
         EntityId::from_str(&user_uuid)?,
@@ -169,7 +167,7 @@ pub async fn get_dept_entities(
     Ok(entities)
 }
 
-// --- 查找子部门 ---
+// --- Find child departments ---
 pub async fn find_descendants_entities(
     db: &DatabaseConnection,
     dept_id: i32,
@@ -254,7 +252,7 @@ pub async fn get_group_entities(
     Ok(entities)
 }
 
-// 辅助函数
+// Helpers
 pub async fn get_role_models_by_user_uuid(db: &DatabaseConnection, user_uuid: String) -> Result<Vec<roles::Model>, AppError> {
     let user_id_subquery = users::Entity::find()
         .select_only()
@@ -262,34 +260,34 @@ pub async fn get_role_models_by_user_uuid(db: &DatabaseConnection, user_uuid: St
         .filter(users::Column::UserUuid.eq(user_uuid))
         .into_query();
 
-    // --- 子查询 1: 获取直接分配给用户的角色 ID ---
+    // --- Subquery 1: roles assigned to the user directly ---
     let direct_role_ids_query = user_roles::Entity::find()
-        .select_only() // 只选择特定列
-        .column(user_roles::Column::RoleId) // 我们只需要 role_id
+        .select_only() // select only one column
+        .column(user_roles::Column::RoleId) // we only need role_id
         .filter(user_roles::Column::UserId.in_subquery(user_id_subquery.clone()));
 
-    // --- 子查询 2: 获取通过用户组继承的角色 ID ---
-    // 首先，找到该用户所属的所有 group_id
+    // --- Subquery 2: roles inherited through groups ---
+    // First, all group_ids the user belongs to
     let group_ids_query = user_group_members::Entity::find()
         .select_only()
         .column(user_group_members::Column::GroupId)
         .filter(user_group_members::Column::UserId.in_subquery(user_id_subquery));
 
-    // 然后，基于上面的 group_id 找到所有关联的 role_id
+    // Then the role_ids linked to those groups
     let group_role_ids_query = group_roles::Entity::find()
         .select_only()
         .column(group_roles::Column::RoleId)
         .filter(group_roles::Column::GroupId.in_subquery(group_ids_query.into_query()));
 
-    // --- 主查询: 获取所有符合条件的角色信息 ---
-    // 使用 Condition::any() (即 OR) 来合并两个子查询的结果
+    // --- Main query: all matching roles ---
+    // Condition::any() (OR) merges the two subqueries
     let all_roles = roles::Entity::find()
         .distinct()
         .filter(
             Condition::any()
-                // 条件1: role_id 在直接分配的角色 ID 列表中
+                // role_id is among the directly assigned roles
                 .add(roles::Column::RoleId.in_subquery(direct_role_ids_query.into_query()))
-                // 条件2: role_id 在通过用户组继承的角色 ID 列表中
+                // role_id is among the roles inherited via groups
                 .add(roles::Column::RoleId.in_subquery(group_role_ids_query.into_query())),
         )
         .all(db)

@@ -5,24 +5,21 @@ use axum::{
     Json,
 };
 use jsonwebtoken;
-use std::error;
 use std::num::ParseIntError;
-use std::str::Utf8Error;
-use openssl::base64;
 use tracing::error;
 
 #[derive(Debug)]
 pub enum ErrorType {
-    BadRequest,           // 400 - 客户端请求错误
-    Unauthorized,         // 401 - 未认证
-    Forbidden,            // 403 - 无权限
-    NotFound,             // 404 - 资源不存在
-    Conflict,             // 409 - 资源冲突
-    InternalServerError,  // 500 - 服务器内部错误
-    TokenValidationError, // 500 SSO认证错误
+    BadRequest,           // 400 - bad request
+    Unauthorized,         // 401 - not authenticated
+    Forbidden,            // 403 - not allowed
+    NotFound,             // 404 - not found
+    Conflict,             // 409 - conflict
+    InternalServerError,  // 500 - internal error
+    TokenValidationError, // 500 - SSO auth error
 }
 
-// 自定义错误结构
+// Application error
 #[derive(Debug)]
 pub struct AppError {
     pub error_type: ErrorType,
@@ -108,7 +105,7 @@ impl std::error::Error for AppError {
     }
 }
 
-// 只保留必要的From实现
+// Only the From impls we actually need
 impl From<validator::ValidationErrors> for AppError {
     fn from(err: validator::ValidationErrors) -> Self {
         Self::bad_request(anyhow::Error::from(err))
@@ -127,7 +124,7 @@ impl From<std::io::Error> for AppError {
     }
 }
 
-// 数据库错误默认为内部服务器错误
+// DB errors map to internal server errors
 impl From<sea_orm::DbErr> for AppError {
     fn from(err: sea_orm::DbErr) -> Self {
         tracing::error!("Database error: {:?}", err);
@@ -162,7 +159,7 @@ impl From<jsonwebtoken::errors::Error> for AppError {
     }
 }
 
-// Redis错误默认为内部服务器错误
+// Redis errors map to internal server errors
 impl From<redis::RedisError> for AppError {
     fn from(err: redis::RedisError) -> Self {
         tracing::error!("Redis error: {:?}", err);
@@ -170,7 +167,7 @@ impl From<redis::RedisError> for AppError {
     }
 }
 
-// PasswordHashError 处理
+// PasswordHashError
 impl From<argon2::password_hash::Error> for AppError {
     fn from(err: argon2::password_hash::Error) -> Self {
         tracing::error!("Password hash error: {:?}", err);
@@ -178,7 +175,7 @@ impl From<argon2::password_hash::Error> for AppError {
     }
 }
 
-// Cedar policy 相关错误
+// Cedar policy errors
 impl From<cedar_policy::entities_errors::EntitiesError> for AppError {
     fn from(err: cedar_policy::entities_errors::EntitiesError) -> Self {
         tracing::warn!("Cedar entities error: {:?}", err);
@@ -288,12 +285,12 @@ impl IntoResponse for AppError {
     fn into_response(self) -> Response {
         let status = self.status_code();
 
-        // 记录错误信息
+        // Log the error
         match self.error_type {
             ErrorType::InternalServerError => {
                 tracing::error!("Internal server error: {:?}", self.source);
 
-                // 开发环境显示详细错误，生产环境隐藏
+                // Show details in dev, hide them in production
                 #[cfg(debug_assertions)]
                 let error_message = format!("{:?}", self.source);
 

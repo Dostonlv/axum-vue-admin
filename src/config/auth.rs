@@ -1,4 +1,4 @@
-// # 认证配置（JWT、SSO等）
+// # Auth config (JWT, SSO, ...)
 
 pub const CSRF_SECRET: &str = "cc580ebe0a383d8ad8d180acdf69c16c793288b5e3e48a33690f82735a36e551";
 pub static ACCESS_TOKEN_SECRET: &str =
@@ -6,6 +6,6 @@ pub static ACCESS_TOKEN_SECRET: &str =
 pub const REFRESH_TOKEN_SECRET: &str =
     "bc15e5644c71750ae12c2acb9678c2602f4d9b35cb1ae215bcadcfa66c6c734b";
 
-pub static ACCESS_TOKEN_EXPIRATION: i64 = 900; // 秒 15分钟
+pub static ACCESS_TOKEN_EXPIRATION: i64 = 900; // seconds, 15 minutes
 
-pub static REFRESH_TOKEN_EXPIRATION: i64 = 604800; // 秒 七天
+pub static REFRESH_TOKEN_EXPIRATION: i64 = 604800; // seconds, 7 days

@@ -3,6 +3,9 @@ import { resetRouter } from '@/router';
 import { useTagsStore } from '@/stores';
 import { toLogin } from '@/utils';
 import { authApi } from '@/api/authApi';
+import i18n from '@/i18n';
+
+const { t } = i18n.global;
 
 
 export const useUserStore = defineStore('user', {
@@ -13,7 +16,7 @@ export const useUserStore = defineStore('user', {
         roles: [],
         departments: {},
         groups: [],
-        // 跟踪初始认证状态，防止路由守卫在检查完成前执行
+        // Tracks the initial auth check so the route guard waits for it
         authStatusChecked: false,
         isDynamicRoutesAdded: false,
     }),
@@ -27,7 +30,7 @@ export const useUserStore = defineStore('user', {
 
     actions: {
         /**
-         * 登录操作
+         * Log in
          * @param {object} credentials
          */
         async login(credentials) {
@@ -36,14 +39,14 @@ export const useUserStore = defineStore('user', {
                 this.accessToken = response.data.access_token;
                 await this.getUserProfile();
             } catch (error) {
-                $message.error(error.message || '登录失败');
+                $message.error(error.message || t('views.login.login_failed'));
                 console.error('Login failed:', error);
                 throw error;
             }
         },
 
         /**
-         * 获取当前登录用户的信息
+         * Fetch the current user's profile
          */
         async getUserProfile() {
             try {
@@ -56,14 +59,14 @@ export const useUserStore = defineStore('user', {
                 this.groups = response.data.groups;
             } catch (error) {
                 console.error('Failed to get user profile:', error);
-                // 如果获取用户信息失败（例如 token 彻底失效），可以选择在这里触发登出
+                // If fetching the profile fails (e.g. the token is dead), we could log out here
                 await this.logout();
                 throw error;
             }
         },
 
         /**
-         * 刷新 Token。主要由 http 拦截器调用。
+         * Refresh the token. Mostly called by the http interceptor.
          */
         async refreshToken() {
             try {
@@ -72,7 +75,7 @@ export const useUserStore = defineStore('user', {
                 return response.access_token;
             } catch (error) {
                 console.error('Failed to refresh token:', error);
-                // 刷新失败意味着会话已完全失效，清理所有数据并跳转到登录页
+                // A failed refresh means the session is gone: clear everything and go to the login page
                 this.clearAuthData();
                 toLogin();
                 throw error;
@@ -80,11 +83,11 @@ export const useUserStore = defineStore('user', {
         },
 
         /**
-         * 登出操作
+         * Log out
          */
         async logout() {
             try {
-                // 只有在有 token 的情况下才需要调用后端登出接口
+                // Only call the logout endpoint when there is a token
                 if (this.accessToken) {
                     await authApi.logout();
                 }
@@ -105,17 +108,17 @@ export const useUserStore = defineStore('user', {
 
         async checkAuthStatus() {
             try {
-                // 如果 session storage 中有 token，尝试获取用户信息
+                // If there is a token in session storage, try to load the profile
                 if (this.accessToken) {
                     await this.getUserProfile();
                 }
             } catch (error) {
-                // 捕获到错误意味着会话无效，静默处理，用户将保持未登录状态
+                // An error means the session is invalid; handle it silently and leave the user logged out
                 console.log("No valid session found or failed to restore session.");
-                // 清理可能存在的无效 token
+                // Clear any stale token
                 this.accessToken = null;
             } finally {
-                // 无论成功与否，都标记为检查已完成
+                // Mark the check as done either way
                 this.authStatusChecked = true;
             }
         },
@@ -129,12 +132,12 @@ export const useUserStore = defineStore('user', {
             this.userInfo = {};
             this.UIPolicies = [];
             this.roles = [];
-            // ... 重置所有与认证相关的 state
+            // ... reset all auth-related state
         },
     },
 
     persist: {
-        // Pinia 持久化插件的配置
+        // Pinia persistence plugin config
         storage: sessionStorage,
     },
 });

@@ -8,11 +8,14 @@ import { renderIcon } from '@/utils';
 import CommonPage from '@/components/page/CommonPage.vue';
 import CrudModal from '@/components/table/CrudModal.vue';
 import CrudTable from '@/components/table/CrudTable.vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n({ useScope: 'global' });
 
 const $message = window.$message;
 const $dialog = window.$dialog;
 
-defineOptions({ name: 'Schema管理' });
+defineOptions({ name: 'SchemaManagement' });
 
 
 const store = useSchemaStore();
@@ -22,23 +25,23 @@ const vPermission = resolveDirective('permission');
 
 
 const showModal = ref(false);
-const modalTitle = ref('编辑Schema');
+const modalTitle = ref(t('views.system.schema.edit'));
 const currentItem = ref({});
 const isSubmitting = ref(false);
 
 
 onMounted(() => {
   store.fetchSchemas().catch(error => {
-    $message.error(`加载Schema失败: ${error.message}`);
+    $message.error(`${t('views.system.schema.load_failed')}: ${error.message}`);
   });
 
 
   setTimeout(() => {
     $dialog.warning({
-      title: '注意!!!',
-      content: '请慎重操作,错误的修改可能会导致权限失效！',
-      positiveText: '我明白',
-      negativeText: '不改了',
+      title: t('views.system.cedar.warn_title'),
+      content: t('views.system.cedar.warn_content'),
+      positiveText: t('views.system.cedar.warn_ok'),
+      negativeText: t('views.system.cedar.warn_cancel'),
       maskClosable: false,
       closable: false,
       onNegativeClick: () => router.push('/'),
@@ -56,10 +59,10 @@ const handleSave = async () => {
   isSubmitting.value = true;
   try {
     await store.updateSchema(currentItem.value.id, currentItem.value);
-    $message.success('更新成功');
+    $message.success(t('common.messages.update_success'));
     showModal.value = false;
   } catch (error) {
-    $message.error(`更新失败: ${error.message}`);
+    $message.error(`${t('common.messages.update_failed')}: ${error.message}`);
   } finally {
     isSubmitting.value = false;
   }
@@ -68,13 +71,13 @@ const handleSave = async () => {
 
 const columns = [
   {
-    title: '描述',
+    title: t('common.fields.description'),
     key: 'description',
     width: 80,
     align: 'center',
   },
   {
-    title: '操作',
+    title: t('common.fields.operate'),
     key: 'actions',
     width: 80,
     align: 'center',
@@ -91,7 +94,7 @@ const columns = [
                   onClick: () => handleEdit(row),
                 },
                 {
-                  default: () => '编辑',
+                  default: () => t('common.buttons.edit'),
                   icon: renderIcon('material-symbols:edit-outline', { size: 16 }),
                 }
             ),
@@ -104,7 +107,7 @@ const columns = [
 </script>
 
 <template>
-  <CommonPage show-footer title="Schema列表">
+  <CommonPage show-footer :title="t('views.system.schema.list')">
     <CrudTable
         :columns="columns"
         :data="schemas"
@@ -126,7 +129,7 @@ const columns = [
               :autosize="{ minRows: 10, maxRows: 20 }"
           />
         </NFormItem>
-        <NFormItem label="描述" path="description" required>
+        <NFormItem :label="t('common.fields.description')" path="description" required>
           <NInput v-model:value="currentItem.description" />
         </NFormItem>
       </NForm>

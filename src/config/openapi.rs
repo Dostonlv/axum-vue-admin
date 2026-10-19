@@ -40,7 +40,7 @@ pub const ISSUES_TAG: &str = "Issues";
     ),
     modifiers(&SecurityAddon),
     security(
-        // 全局安全要求 - 所有端点都需要认证
+        // Global security requirement: every endpoint needs auth
         // ("bearerAuth" = [])
     )
 )]

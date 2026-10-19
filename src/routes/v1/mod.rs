@@ -1,4 +1,4 @@
-// 路由模块入口
+// Route module entry
 
 use crate::config::state::AppState;
 use crate::middlewares::auth_guard::auth_guard_middleware;

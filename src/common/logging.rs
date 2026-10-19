@@ -16,7 +16,7 @@ pub fn init_logging(config: &LogConfig) -> Result<tracing_appender::non_blocking
         .and_then(|name| name.to_str())
         .unwrap_or("app.log");
 
-    // 创建目录（如果不存在）
+    // Create the directory if it doesn't exist
     std::fs::create_dir_all(directory)?;
 
     let file_appender = match config.rotation.daily {
@@ -46,7 +46,7 @@ pub fn init_logging(config: &LogConfig) -> Result<tracing_appender::non_blocking
     info!(
         level = %config.level,
         file = ?config.file,
-        "日志系统初始化完成"
+        "Logging initialized"
     );
 
     Ok(guard)

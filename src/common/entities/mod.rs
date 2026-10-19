@@ -3,11 +3,11 @@ mod trait_def;
 mod mapping;
 mod loader;
 
-// 导出所有常量供外部使用 (如 ENTITY_TYPE_USER)
+// Re-export all constants (e.g. ENTITY_TYPE_USER)
 pub use constants::*;
-// 导出 Trait
+// Re-export the trait
 pub use trait_def::ToCedarEntity;
-// 导出业务加载函数
+// Re-export the loader functions
 pub use loader::{
     get_user_entities,
     get_role_entities,

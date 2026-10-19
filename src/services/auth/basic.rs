@@ -1,5 +1,5 @@
 use crate::common::entities::get_user_entities;
-// 认证相关路由（登录、SSO等）
+// Auth routes (login, SSO, ...)
 use crate::common::jwt::{create_refresh_token, verify_refresh_token};
 use crate::common::{
     crypto::verify_password, jwt::create_access_token,
@@ -23,7 +23,7 @@ use chrono::{Duration, Utc};
 use redis::{AsyncCommands, RedisResult};
 use sea_orm::JoinType::InnerJoin;
 use sea_orm::{
-    ActiveModelTrait, ColIdx, ColumnTrait, EntityTrait, ModelTrait, PaginatorTrait, QueryFilter,
+    ActiveModelTrait, ColIdx, ColumnTrait, EntityTrait, PaginatorTrait, QueryFilter,
     QuerySelect, RelationTrait, Set,
 };
 
@@ -40,9 +40,9 @@ impl BasicAuthService {
     }
 
     pub async fn authenticate(&self, dto: Credentials) -> Result<TokenPair, AppError> {
-        // 验证用户名和密码
-        // 生成 JWT
-        // 返回 JWT
+        // Verify username and password
+        // Generate the JWT
+        // Return the JWT
         let user = UserEntity::find()
             .filter(UserColumn::Username.eq(&dto.username))
             .one(self.app_state.db.as_ref())
@@ -105,7 +105,7 @@ impl BasicAuthService {
 
         let _ = &self.cache_user_entities(user.user_uuid.clone()).await?;
 
-        // 更新用户最后登录时间
+        // Update the last login time
         let user = UserActiveModel {
             user_id: Set(user.user_id),
             last_login: Set(Some(Utc::now().naive_local())),
@@ -121,14 +121,14 @@ impl BasicAuthService {
         })
     }
 
-    // 刷新 JWT
+    // Refresh the JWT
     pub async fn refresh(&self, session: SessionContext) -> Result<TokenPair, AppError> {
         let refresh_claims = verify_refresh_token(session.refresh_token.as_str())?;
 
         if refresh_claims.token_type != TokenType::Refresh {
             return Err(bad_request!("Invalid refresh token".to_string()));
         }
-        // 检查这个Refresh Token是否在黑名单中
+        // Check whether this refresh token is blacklisted
         let mut redis_conn = self
             .app_state
             .redis
@@ -141,7 +141,7 @@ impl BasicAuthService {
             return Err(bad_request!("Refresh token is blacklisted".to_string(),));
         }
 
-        // 签发新的JWT
+        // Issue a new JWT
         let expires = Utc::now() + Duration::seconds(ACCESS_TOKEN_EXPIRATION);
         let new_claims = Claims {
             sub: refresh_claims.sub.clone(),
@@ -157,7 +157,7 @@ impl BasicAuthService {
         let new_access_token = create_access_token(new_claims)?;
 
         let access_ttl = refresh_claims.exp - Utc::now().timestamp() as u64;
-        // 将旧Refresh Token 添加黑名单
+        // Blacklist the old refresh token
         let _: RedisResult<()> = redis_conn
             .set_ex(
                 format!("{}:{}", BLACK_LIST_JTI, refresh_claims.jti),
@@ -194,7 +194,7 @@ impl BasicAuthService {
             .get_multiplexed_async_connection()
             .await?;
 
-        // 设置 Access Token 过期
+        // Set the access token expiry
         let ttl = cmd
             .auth_user
             .exp
@@ -208,7 +208,7 @@ impl BasicAuthService {
             )
             .await;
 
-        // 设置 Refresh Token 过期
+        // Set the refresh token expiry
         if let Some(session) = cmd.session {
             let claims = verify_refresh_token(session.refresh_token.as_str())?;
             let ttl = claims.exp.saturating_sub(Utc::now().timestamp() as u64);
@@ -222,7 +222,7 @@ impl BasicAuthService {
         Ok(())
     }
 
-    // 当前用户的 Entities 不应该过期; 不然速度太慢了.
+    // The current user's entities should not expire, otherwise it gets too slow.
     async fn cache_user_entities(&self, user_id: UserUUID) -> Result<(), AppError> {
         let schema = self.app_state.auth_service.get_schema_copy().await;
         let _ = get_user_entities(

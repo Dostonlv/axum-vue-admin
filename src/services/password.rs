@@ -1,5 +1,7 @@
 use crate::common::crypto::hash_password;
-use crate::common::templates::{CNPasswordResetTemplate, ENPasswordResetTemplate};
+use crate::common::templates::{
+    CNPasswordResetTemplate, ENPasswordResetTemplate, UZPasswordResetTemplate,
+};
 use crate::config::state::AppState;
 use crate::entity::users;
 use crate::errors::app_error::AppError;
@@ -56,6 +58,13 @@ impl PasswordService {
             "CN" => {
                 let subject = "[Axum Vue Admin] 密码重置请求";
                 let template = CNPasswordResetTemplate {
+                    reset_url: reset_url.as_str(),
+                };
+                (subject, template.render()?)
+            }
+            "UZ" => {
+                let subject = "[Axum Vue Admin] Parolni tiklash so'rovi";
+                let template = UZPasswordResetTemplate {
                     reset_url: reset_url.as_str(),
                 };
                 (subject, template.render()?)

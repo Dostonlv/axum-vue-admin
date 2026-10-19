@@ -5,17 +5,17 @@ const {t} = i18n.global
 const Layout = () => import('@/layout/index.vue')
 
 /*
-路由不应该由后端配置，会造成以下问题：
-1.前后端强耦合
-2.前端极差的开发体验
-3.后端逻辑复杂
+Routes should not be configured by the backend, it causes:
+1. tight coupling between frontend and backend
+2. a poor frontend dev experience
+3. complicated backend logic
 
-正确的做法是：
-1.前端定义全量路由
-2.使用meta字段标记资源
-3.后端提供数据
-    UI资源的策略定义 (uiPolicies)。
-4.前端进行过滤和保护
+Do this instead:
+1. the frontend defines the full route table
+2. mark each route's resource in meta
+3. the backend provides the data:
+    UI resource policies (uiPolicies)
+4. the frontend filters and guards routes
 
 
 icons: https://icones.js.org/
@@ -24,7 +24,7 @@ export const basicRoutes = [
     {
         name: 'index',
         path: '/',
-        redirect: '/workbench', // 默认跳转到首页
+        redirect: '/workbench', // default landing page
         meta: {
             order: 0,
             isHidden: true
@@ -119,7 +119,7 @@ export const basicRoutes = [
             },
         ],
     },
-    // 404 路由必须放在最后
+    // The 404 route must come last
     {
         path: '/:pathMatch(.*)*',
         name: 'NotFound',
@@ -128,15 +128,15 @@ export const basicRoutes = [
     },
 ]
 
-// 需要过滤鉴权的路由放这儿
+// Routes that need permission filtering go here
 export const asyncRoutes = [
     {
-        name: "系统管理",
+        name: "SystemManagement",
         path: "/system",
         component: Layout,
         "redirect": "user",
         meta: {
-            title: "系统管理",
+            title: t('menu.system'),
             icon: "carbon:gui-management",
             order: 2,
             keepAlive: true,
@@ -144,11 +144,11 @@ export const asyncRoutes = [
         },
         children: [
             {
-                name: "用户管理",
+                name: "UserManagement",
                 path: "user",
                 component: () => import('@/views/system/user/index.vue'),
                 meta: {
-                    title: "用户管理",
+                    title: t('menu.user'),
                     icon: "material-symbols:person-outline-rounded",
                     order: 1,
                     keepAlive: true,
@@ -157,11 +157,11 @@ export const asyncRoutes = [
                 }
             },
             {
-                name: "用户组管理",
+                name: "GroupManagement",
                 path: "group",
                 component: () => import('@/views/system/group/index.vue'),
                 meta: {
-                    title: "用户组管理",
+                    title: t('menu.group'),
                     icon: "mdi:account-group-outline",
                     order: 2,
                     keepAlive: true,
@@ -170,11 +170,11 @@ export const asyncRoutes = [
                 }
             },
             {
-                name: "角色管理",
+                name: "RoleManagement",
                 path: "role",
                 component: () => import('@/views/system/role/index.vue'),
                 meta: {
-                    title: "角色管理",
+                    title: t('menu.role'),
                     icon: "carbon:user-role",
                     order: 3,
                     keepAlive: true,
@@ -183,11 +183,11 @@ export const asyncRoutes = [
                 }
             },
             {
-                name: "部门管理",
+                name: "DeptManagement",
                 path: "dept",
                 component: () => import('@/views/system/dept/index.vue'),
                 meta: {
-                    title: "部门管理",
+                    title: t('menu.dept'),
                     icon: "mingcute:department-line",
                     order: 4,
                     keepAlive: true,
@@ -196,11 +196,11 @@ export const asyncRoutes = [
                 }
             },
             {
-                name: "CedarPolicy管理",
+                name: "CedarPolicyManagement",
                 path: "cedar_policies",
                 component: () => import('@/views/system/cedar_policies/index.vue'),
                 meta: {
-                    title: "CedarPolicy管理",
+                    title: t('menu.cedar_policy'),
                     icon: "carbon:policy",
                     order: 5,
                     keepAlive: true,
@@ -209,11 +209,11 @@ export const asyncRoutes = [
                 }
             },
             {
-                name: "CedarSchema管理",
+                name: "CedarSchemaManagement",
                 path: "cedar_schema",
                 component: () => import('@/views/system/cedar_schema/index.vue'),
                 meta: {
-                    title: "CedarSchema管理",
+                    title: t('menu.cedar_schema'),
                     icon: "carbon:schematics",
                     order: 6,
                     keepAlive: true,
@@ -222,11 +222,11 @@ export const asyncRoutes = [
                 }
             },
             // {
-            //     name: "审计日志",
+            //     name: "Audit log",
             //     path: "auditlog",
             //     component: () => import('@/views/system/auditlog/index.vue'),
             //     meta: {
-            //         title: "审计日志",
+            //         title: "Audit log",
             //         icon: "ph:clipboard-text-bold",
             //         order: 7,
             //         keepAlive: true,
